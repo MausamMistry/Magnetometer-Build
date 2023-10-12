@@ -1,0 +1,190 @@
+[2023-10-12T12:19:41.412] [INFO] default - UserRecord has been get successfully
+[2023-10-12T12:19:41.435] [INFO] default - MongoServerError: PlanExecutor error during aggregation :: caused by :: Second argument to $slice can't be represented as a 32-bit integer: nan
+    at Connection.onMessage (D:\oct\Magnetometer App\Magnetometer-Backend\node_modules\mongoose\node_modules\mongodb\src\cmap\connection.ts:449:20)
+    at MessageStream.<anonymous> (D:\oct\Magnetometer App\Magnetometer-Backend\node_modules\mongoose\node_modules\mongodb\src\cmap\connection.ts:241:56)
+    at MessageStream.emit (node:events:514:28)
+    at MessageStream.emit (node:domain:489:12)
+    at processIncomingData (D:\oct\Magnetometer App\Magnetometer-Backend\node_modules\mongoose\node_modules\mongodb\src\cmap\message_stream.ts:188:12)
+    at MessageStream._write (D:\oct\Magnetometer App\Magnetometer-Backend\node_modules\mongoose\node_modules\mongodb\src\cmap\message_stream.ts:69:5)
+    at writeOrBuffer (node:internal/streams/writable:392:12)
+    at _write (node:internal/streams/writable:333:10)
+    at MessageStream.Writable.write (node:internal/streams/writable:337:10)
+    at TLSSocket.ondata (node:internal/streams/readable:766:22) {
+  ok: 0,
+  code: 28726,
+  codeName: 'Location28726',
+  '$clusterTime': {
+    clusterTime: new Timestamp({ t: 1697093381, i: 1 }),
+    signature: {
+      hash: new Binary(Buffer.from("7630217759f7b9892ce1cba8a3cf35d738b4484f", "hex"), 0),
+      keyId: new Long("7231249751226712066")
+    }
+  },
+  operationTime: new Timestamp({ t: 1697093381, i: 1 }),
+  [Symbol(errorLabels)]: Set(0) {}
+}
+[2023-10-12T12:19:47.699] [INFO] default - UserRecord has been get successfully
+[2023-10-12T12:19:47.699] [INFO] default - MongoServerError: PlanExecutor error during aggregation :: caused by :: Second argument to $slice can't be represented as a 32-bit integer: nan
+    at Connection.onMessage (D:\oct\Magnetometer App\Magnetometer-Backend\node_modules\mongoose\node_modules\mongodb\src\cmap\connection.ts:449:20)
+    at MessageStream.<anonymous> (D:\oct\Magnetometer App\Magnetometer-Backend\node_modules\mongoose\node_modules\mongodb\src\cmap\connection.ts:241:56)
+    at MessageStream.emit (node:events:514:28)
+    at MessageStream.emit (node:domain:489:12)
+    at processIncomingData (D:\oct\Magnetometer App\Magnetometer-Backend\node_modules\mongoose\node_modules\mongodb\src\cmap\message_stream.ts:188:12)
+    at MessageStream._write (D:\oct\Magnetometer App\Magnetometer-Backend\node_modules\mongoose\node_modules\mongodb\src\cmap\message_stream.ts:69:5)
+    at writeOrBuffer (node:internal/streams/writable:392:12)
+    at _write (node:internal/streams/writable:333:10)
+    at MessageStream.Writable.write (node:internal/streams/writable:337:10)
+    at TLSSocket.ondata (node:internal/streams/readable:766:22) {
+  ok: 0,
+  code: 28726,
+  codeName: 'Location28726',
+  '$clusterTime': {
+    clusterTime: new Timestamp({ t: 1697093386, i: 16 }),
+    signature: {
+      hash: new Binary(Buffer.from("5ae1a09943ba93adda3c76f052d432f34c009a0e", "hex"), 0),
+      keyId: new Long("7231249751226712066")
+    }
+  },
+  operationTime: new Timestamp({ t: 1697093386, i: 16 }),
+  [Symbol(errorLabels)]: Set(0) {}
+}
+[2023-10-12T12:20:39.336] [INFO] default - UserRecord has been get successfully
+[2023-10-12T12:20:39.336] [INFO] default - MongoServerError: PlanExecutor error during aggregation :: caused by :: Second argument to $slice can't be represented as a 32-bit integer: nan
+    at Connection.onMessage (D:\oct\Magnetometer App\Magnetometer-Backend\node_modules\mongoose\node_modules\mongodb\src\cmap\connection.ts:449:20)
+    at MessageStream.<anonymous> (D:\oct\Magnetometer App\Magnetometer-Backend\node_modules\mongoose\node_modules\mongodb\src\cmap\connection.ts:241:56)
+    at MessageStream.emit (node:events:514:28)
+    at MessageStream.emit (node:domain:489:12)
+    at processIncomingData (D:\oct\Magnetometer App\Magnetometer-Backend\node_modules\mongoose\node_modules\mongodb\src\cmap\message_stream.ts:188:12)
+    at MessageStream._write (D:\oct\Magnetometer App\Magnetometer-Backend\node_modules\mongoose\node_modules\mongodb\src\cmap\message_stream.ts:69:5)
+    at writeOrBuffer (node:internal/streams/writable:392:12)
+    at _write (node:internal/streams/writable:333:10)
+    at MessageStream.Writable.write (node:internal/streams/writable:337:10)
+    at TLSSocket.ondata (node:internal/streams/readable:766:22) {
+  ok: 0,
+  code: 28726,
+  codeName: 'Location28726',
+  '$clusterTime': {
+    clusterTime: new Timestamp({ t: 1697093439, i: 1 }),
+    signature: {
+      hash: new Binary(Buffer.from("cd42850f21edb80c09bd2b8d57701257ff289c8e", "hex"), 0),
+      keyId: new Long("7231249751226712066")
+    }
+  },
+  operationTime: new Timestamp({ t: 1697093439, i: 1 }),
+  [Symbol(errorLabels)]: Set(0) {}
+}
+[2023-10-12T13:10:36.526] [INFO] default - UserRecord has been get successfully
+[2023-10-12T13:10:36.540] [INFO] default - MongoServerError: PlanExecutor error during aggregation :: caused by :: Second argument to $slice can't be represented as a 32-bit integer: nan
+    at Connection.onMessage (D:\oct\Magnetometer App\Magnetometer-Backend\node_modules\mongoose\node_modules\mongodb\src\cmap\connection.ts:449:20)
+    at MessageStream.<anonymous> (D:\oct\Magnetometer App\Magnetometer-Backend\node_modules\mongoose\node_modules\mongodb\src\cmap\connection.ts:241:56)
+    at MessageStream.emit (node:events:514:28)
+    at MessageStream.emit (node:domain:489:12)
+    at processIncomingData (D:\oct\Magnetometer App\Magnetometer-Backend\node_modules\mongoose\node_modules\mongodb\src\cmap\message_stream.ts:188:12)
+    at MessageStream._write (D:\oct\Magnetometer App\Magnetometer-Backend\node_modules\mongoose\node_modules\mongodb\src\cmap\message_stream.ts:69:5)
+    at writeOrBuffer (node:internal/streams/writable:392:12)
+    at _write (node:internal/streams/writable:333:10)
+    at MessageStream.Writable.write (node:internal/streams/writable:337:10)
+    at TLSSocket.ondata (node:internal/streams/readable:766:22) {
+  ok: 0,
+  code: 28726,
+  codeName: 'Location28726',
+  '$clusterTime': {
+    clusterTime: new Timestamp({ t: 1697096436, i: 1 }),
+    signature: {
+      hash: new Binary(Buffer.from("bcc36c6e79e79a6591a86d8948a29cd0038f4131", "hex"), 0),
+      keyId: new Long("7231249751226712066")
+    }
+  },
+  operationTime: new Timestamp({ t: 1697096436, i: 1 }),
+  [Symbol(errorLabels)]: Set(0) {}
+}
+[2023-10-12T13:11:12.838] [INFO] default - UserRecord has been get successfully
+[2023-10-12T13:11:12.839] [INFO] default - MongoServerError: PlanExecutor error during aggregation :: caused by :: Second argument to $slice can't be represented as a 32-bit integer: nan
+    at Connection.onMessage (D:\oct\Magnetometer App\Magnetometer-Backend\node_modules\mongoose\node_modules\mongodb\src\cmap\connection.ts:449:20)
+    at MessageStream.<anonymous> (D:\oct\Magnetometer App\Magnetometer-Backend\node_modules\mongoose\node_modules\mongodb\src\cmap\connection.ts:241:56)
+    at MessageStream.emit (node:events:514:28)
+    at MessageStream.emit (node:domain:489:12)
+    at processIncomingData (D:\oct\Magnetometer App\Magnetometer-Backend\node_modules\mongoose\node_modules\mongodb\src\cmap\message_stream.ts:188:12)
+    at MessageStream._write (D:\oct\Magnetometer App\Magnetometer-Backend\node_modules\mongoose\node_modules\mongodb\src\cmap\message_stream.ts:69:5)
+    at writeOrBuffer (node:internal/streams/writable:392:12)
+    at _write (node:internal/streams/writable:333:10)
+    at MessageStream.Writable.write (node:internal/streams/writable:337:10)
+    at TLSSocket.ondata (node:internal/streams/readable:766:22) {
+  ok: 0,
+  code: 28726,
+  codeName: 'Location28726',
+  '$clusterTime': {
+    clusterTime: new Timestamp({ t: 1697096472, i: 7 }),
+    signature: {
+      hash: new Binary(Buffer.from("1adf9efbdd8637647476f88865eeb479967f30fd", "hex"), 0),
+      keyId: new Long("7231249751226712066")
+    }
+  },
+  operationTime: new Timestamp({ t: 1697096472, i: 7 }),
+  [Symbol(errorLabels)]: Set(0) {}
+}
+[2023-10-12T13:12:09.380] [INFO] default - UserRecord has been get successfully
+[2023-10-12T13:12:09.380] [INFO] default - MongoServerError: PlanExecutor error during aggregation :: caused by :: Second argument to $slice can't be represented as a 32-bit integer: nan
+    at Connection.onMessage (D:\oct\Magnetometer App\Magnetometer-Backend\node_modules\mongoose\node_modules\mongodb\src\cmap\connection.ts:449:20)
+    at MessageStream.<anonymous> (D:\oct\Magnetometer App\Magnetometer-Backend\node_modules\mongoose\node_modules\mongodb\src\cmap\connection.ts:241:56)
+    at MessageStream.emit (node:events:514:28)
+    at MessageStream.emit (node:domain:489:12)
+    at processIncomingData (D:\oct\Magnetometer App\Magnetometer-Backend\node_modules\mongoose\node_modules\mongodb\src\cmap\message_stream.ts:188:12)
+    at MessageStream._write (D:\oct\Magnetometer App\Magnetometer-Backend\node_modules\mongoose\node_modules\mongodb\src\cmap\message_stream.ts:69:5)
+    at writeOrBuffer (node:internal/streams/writable:392:12)
+    at _write (node:internal/streams/writable:333:10)
+    at MessageStream.Writable.write (node:internal/streams/writable:337:10)
+    at TLSSocket.ondata (node:internal/streams/readable:766:22) {
+  ok: 0,
+  code: 28726,
+  codeName: 'Location28726',
+  '$clusterTime': {
+    clusterTime: new Timestamp({ t: 1697096528, i: 12 }),
+    signature: {
+      hash: new Binary(Buffer.from("9cd8707907967de8bc63b4ec844ec36d90b48fb9", "hex"), 0),
+      keyId: new Long("7231249751226712066")
+    }
+  },
+  operationTime: new Timestamp({ t: 1697096528, i: 12 }),
+  [Symbol(errorLabels)]: Set(0) {}
+}
+[2023-10-12T13:54:46.888] [INFO] default - undefined
+[2023-10-12T13:54:46.889] [INFO] default - TypeError: Cannot read properties of null (reading 'toJSON')
+    at login (D:\oct\Magnetometer App\Magnetometer-Backend\src\controllers\admin\auth.ts:234:43)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2023-10-12T13:55:52.469] [INFO] default - undefined
+[2023-10-12T13:55:52.469] [INFO] default - TypeError: Cannot read properties of null (reading 'toJSON')
+    at login (D:\oct\Magnetometer App\Magnetometer-Backend\src\controllers\admin\auth.ts:235:43)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2023-10-12T13:56:07.184] [INFO] default - undefined
+[2023-10-12T13:56:07.185] [INFO] default - TypeError: Cannot read properties of null (reading 'toJSON')
+    at login (D:\oct\Magnetometer App\Magnetometer-Backend\src\controllers\admin\auth.ts:235:43)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2023-10-12T13:56:27.380] [INFO] default - undefined
+[2023-10-12T13:56:27.380] [INFO] default - TypeError: Cannot read properties of null (reading 'toJSON')
+    at login (D:\oct\Magnetometer App\Magnetometer-Backend\src\controllers\admin\auth.ts:235:43)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2023-10-12T14:42:26.106] [INFO] default - undefined
+[2023-10-12T14:42:26.107] [INFO] default - TypeError: Cannot read properties of null (reading 'toJSON')
+    at login (D:\oct\Magnetometer App\Magnetometer-Backend\src\controllers\admin\auth.ts:235:43)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2023-10-12T14:42:54.354] [INFO] default - undefined
+[2023-10-12T14:42:54.355] [INFO] default - TypeError: Cannot read properties of null (reading 'toJSON')
+    at login (D:\oct\Magnetometer App\Magnetometer-Backend\src\controllers\admin\auth.ts:235:43)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2023-10-12T14:43:15.184] [INFO] default - undefined
+[2023-10-12T14:43:15.184] [INFO] default - TypeError: Cannot read properties of null (reading 'toJSON')
+    at login (D:\oct\Magnetometer App\Magnetometer-Backend\src\controllers\admin\auth.ts:235:43)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2023-10-12T14:43:41.668] [INFO] default - undefined
+[2023-10-12T14:43:41.669] [INFO] default - TypeError: Cannot read properties of null (reading 'toJSON')
+    at login (D:\oct\Magnetometer App\Magnetometer-Backend\src\controllers\admin\auth.ts:235:43)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2023-10-12T14:45:42.306] [INFO] default - undefined
+[2023-10-12T14:45:42.307] [INFO] default - TypeError: Cannot read properties of null (reading 'toJSON')
+    at login (D:\oct\Magnetometer App\Magnetometer-Backend\src\controllers\admin\auth.ts:235:43)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2023-10-12T15:07:23.941] [INFO] default - undefined
+[2023-10-12T15:07:23.942] [INFO] default - TypeError: Cannot read properties of null (reading 'toJSON')
+    at login (D:\oct\Magnetometer App\Magnetometer-Backend\src\controllers\admin\auth.ts:251:43)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)
