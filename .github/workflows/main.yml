@@ -17,10 +17,9 @@ jobs:
       
       - name: Move file to /var/www/html
         run: |
-          sudo su
-          rm -rf /var/www/html/Magnetometer-Build/
-          cd ~ && cp -r ./actions-runner/_work/Magnetometer-Build/Magnetometer-Build /var/www/html
-          cd /var/www/html/Magnetometer-Build/Backend && npm i 
-          systemctl restart nginx 
+          sudo rm -rf /var/www/html/Magnetometer-Build/
+          cd ~ && sudo sudo cp -r ./actions-runner/_work/Magnetometer-Build/Magnetometer-Build /var/www/html
+          cd /var/www/html/Magnetometer-Build/Backend && sudo npm i 
+          sudo systemctl restart nginx 
           
         
