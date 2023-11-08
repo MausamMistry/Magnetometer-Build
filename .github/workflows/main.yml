@@ -14,9 +14,10 @@ jobs:
     steps:
       - name: Checkout the files
         uses: actions/checkout@v2
-        
+        with:
+          path: /var/www/html  
+      
       - name: Move file to /var/www/html
         run: |
-          sudo rm -rf /var/www/html/Magnetometer-Build/
-          sudo mv /home/ubuntu/actions-runner/Magnetometer-Build/Magnetometer-Build/ /var/www/html
+          pwd
         
