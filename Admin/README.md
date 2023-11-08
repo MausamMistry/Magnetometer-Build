@@ -1,2 +1,2 @@
 # README
-Magnetometer Build
+Name: Magnetometer Build
