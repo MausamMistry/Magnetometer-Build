@@ -8,7 +8,7 @@ on:
 
 jobs:
   deploy:
-    name: Deploy to AWS EC2 on test-patch-1 branch push ...
+    name: Deploy to AWS EC2 on test-patch-1 branch push ..
     runs-on: self-hosted
 
     steps:
