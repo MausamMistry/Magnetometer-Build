@@ -18,6 +18,5 @@ jobs:
       - name: Move file to /var/www/html
         run: |
           sudo rm -rf /var/www/html/Magnetometer-Build/
-          cd ..
-          sudo mv Magnetometer-Build/ /var/www/html
+          sudo mv /home/ubuntu/actions-runner/Magnetometer-Build/Magnetometer-Build/ /var/www/html
         
