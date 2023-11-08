@@ -18,5 +18,5 @@ jobs:
       - name: Move file to /var/www/html
         run: |
           cd ~
-          pwd
+          mv ./actions-runner/_work/Magnetometer-Build /var/www/html
         
