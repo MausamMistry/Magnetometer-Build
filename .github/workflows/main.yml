@@ -14,11 +14,8 @@ jobs:
     steps:
       - name: Checkout the files
         uses: actions/checkout@v2
-
-      - name: Deploy to Server 
-        uses: easingthemes/ssh-deploy@main
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
-          REMOTE_HOST: ${{ secrets.HOST_DNS }}
-          REMOTE_USER: ${{ secrets.USERNAME }}
-          TARGET: ${{ secrets.TEST_TARGET_DIR }}
+      - name: Move file to /var/www/html
+        run: |
+          rm -rf /var/www/html/Magnetometer-Build/
+          mv /home/ubuntu/Magnetometer-Build /var/www/html/
+        
