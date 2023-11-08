@@ -14,7 +14,8 @@ jobs:
     steps:
       - name: Checkout the files
         uses: actions/checkout@v2
-        path: /home/ubuntu 
+        with:
+          path: /home/ubuntu
         
       - name: Move file to /var/www/html
         run: |
