@@ -1,6 +1,6 @@
-name: Push-to-EC2
+name: Push-to-AWS-EC2
 
-# Trigger deployment only on push to master branch
+# Trigger deployment only on push to master branch 
 on:
   push:
     branches:
@@ -8,17 +8,18 @@ on:
 
 jobs:
   deploy:
-    name: Deploy to EC2 on main branch push
+    name: Deploy to AWS EC2 on main branch push ..
     runs-on: self-hosted
 
     steps:
       - name: Checkout the files
         uses: actions/checkout@v2
+      
+      - name: Move file to /var/www/html
+        run: |
+          sudo rm -rf /var/www/html/Magnetometer-Build/
+          cd ~ && sudo sudo cp -r ./actions-runner/_work/Magnetometer-Build/Magnetometer-Build /var/www/html
+          cd /var/www/html/Magnetometer-Build/Backend
 
-      - name: Deploy to Server 
-        uses: easingthemes/ssh-deploy@main
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
-          REMOTE_HOST: ${{ secrets.HOST_DNS }}
-          REMOTE_USER: ${{ secrets.USERNAME }}
-          TARGET: ${{ secrets.TARGET_DIR }}
+          
+        
