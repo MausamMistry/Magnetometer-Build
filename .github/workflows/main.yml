@@ -17,7 +17,7 @@ jobs:
       
       - name: Move file to /var/www/html
         run: |
-          cd ~ && sudo cp -r ./actions-runner/_work/Magnetometer-Build /var/www/html
+          cd ~ && sudo cp -r ./actions-runner/_work/Magnetometer-Build/Magnetometer-Build /var/www/html
           cd /var/www/html/Magnetometer-Build/Backend && npm i 
           
         
