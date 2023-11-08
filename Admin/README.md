@@ -1,3 +1,3 @@
 # README
-Date: 11/08/2023
+Date: 11/08
 Name: Magnetometer Build
