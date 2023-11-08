@@ -14,10 +14,9 @@ jobs:
     steps:
       - name: Checkout the files
         uses: actions/checkout@v2
-        with:
-          path: /var/www/html  
       
       - name: Move file to /var/www/html
         run: |
+          cd ~
           pwd
         
