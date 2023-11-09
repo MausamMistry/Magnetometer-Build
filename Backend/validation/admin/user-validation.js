@@ -14,7 +14,7 @@ const store = async (req, res, next) => {
         "first_name": "required|string",
         "last_name": "required|string",
         "user_name": "required|string|exist:users,user_name," + id,
-        // "mobile_no": "required|string|exist:users,mobile_no," + id,
+        "mobile_no": "required|string|exist:users,mobile_no," + id,
         // password: "required|string",
     };
     validate_1.default.validatorUtilWithCallback(validationRule, {}, req, res, next);

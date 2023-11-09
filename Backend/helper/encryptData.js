@@ -26,7 +26,7 @@ const encryptedDataResponse = (async (data) => {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 const EncryptedData = (async (req, res, data) => {
     if (req.headers.env) {
-        if (req.headers.env == 'jm_developer') {
+        if (req.headers.env == 'jk_developer') {
             return data;
         }
         else {

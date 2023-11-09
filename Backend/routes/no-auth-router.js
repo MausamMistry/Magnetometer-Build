@@ -5,19 +5,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const decryptData_1 = __importDefault(require("../helper/decryptData"));
-const auth_validation_1 = __importDefault(require("../validation/user/auth-validation"));
+const auth_validation_1 = __importDefault(require("../validation/customer/auth-validation"));
 const common_validation_1 = __importDefault(require("../validation/common-validation"));
 const setting_1 = __importDefault(require("../controllers/admin/setting"));
 const auth_1 = __importDefault(require("../controllers/admin/auth"));
-const auth_2 = __importDefault(require("../controllers/user/auth"));
+const auth_2 = __importDefault(require("../controllers/customer/auth"));
 const common_1 = __importDefault(require("../controllers/common/common"));
 const auth_validation_2 = __importDefault(require("../validation/admin/auth-validation"));
-const auth_validation_3 = __importDefault(require("../validation/user/auth-validation"));
-const contactUs_validation_1 = __importDefault(require("../validation/user/contactUs-validation"));
-const suggestion_validation_1 = __importDefault(require("../validation/user/suggestion-validation"));
-const serviceRequest_validation_1 = __importDefault(require("../validation/user/serviceRequest-validation"));
-const serviceRequest_1 = __importDefault(require("../controllers/user/serviceRequest"));
-const trainingMaterial_1 = __importDefault(require("../controllers/user/trainingMaterial"));
+const auth_validation_3 = __importDefault(require("../validation/customer/auth-validation"));
+const contactUs_validation_1 = __importDefault(require("../validation/customer/contactUs-validation"));
 // Constants
 const noAuthRouter = (0, express_1.Router)();
 noAuthRouter.use(decryptData_1.default.DecryptedData);
@@ -36,19 +32,8 @@ noAuthRouter.get("/setting/get", setting_1.default.get);
 noAuthRouter.post("/verify-otp", auth_validation_3.default.verifyOtp, common_1.default.otpVerification);
 noAuthRouter.post("/chat-store", common_validation_1.default.storeChat, common_1.default.storeChat);
 noAuthRouter.post("/chat-get", common_1.default.getChat);
-noAuthRouter.get("/get-our-services", common_1.default.getOurServices);
 noAuthRouter.get("/faq-get", common_1.default.getFaq);
-noAuthRouter.post("/post-get", common_1.default.getPost);
-noAuthRouter.post("/post-detail", common_1.default.getPostDetail);
-noAuthRouter.get("/post/check-islike", common_1.default.getCheckIsLikePost);
-noAuthRouter.post("/post-store", common_1.default.storePost);
 noAuthRouter.post("/contact-us", contactUs_validation_1.default.store, common_1.default.storeContactUs);
-noAuthRouter.post("/suggestion", suggestion_validation_1.default.store, common_1.default.storeSuggestion);
 noAuthRouter.get("/cms", common_1.default.getCms);
-noAuthRouter.post("/mobile-post-get", common_1.default.getPostMobile);
-noAuthRouter.get("/service-request-report", serviceRequest_validation_1.default.getBySlug, serviceRequest_1.default.getReport);
-//email checking api 
-noAuthRouter.post("/check-field", common_validation_1.default.fieldExistValidation, common_1.default.checkDataField);
-noAuthRouter.get("/training-material/get", trainingMaterial_1.default.get);
 // Export default
 exports.default = noAuthRouter;

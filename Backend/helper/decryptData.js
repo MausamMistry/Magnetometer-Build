@@ -23,7 +23,7 @@ const DecryptedDataResponse = (async (req, res, next) => {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 const DecryptedData = (async (req, res, next) => {
     if (req.headers.env) {
-        if (req.headers.env == 'jm_developer') {
+        if (req.headers.env == 'jk_developer') {
             next();
         }
         else {

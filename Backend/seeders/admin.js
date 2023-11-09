@@ -3,13 +3,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-require('dotenv').config({ path: 'D:/oct/Magnetometer App/Magnetometer-Backend' + '/.env' });
+require('dotenv').config({ path: 'D:/oct/iAudiMeter/iAudioMeter-Backend' + '/.env' });
 const mongoose_1 = __importDefault(require("mongoose"));
 const admin_model_1 = __importDefault(require("../models/admin-model"));
 const role_model_1 = __importDefault(require("../models/role-model"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const seedDB = async () => {
     if (process.env.MONGO_URI) {
+        mongoose_1.default.set("strictQuery", false);
         await mongoose_1.default.connect(process.env.MONGO_URI);
         var roleData = await role_model_1.default.findOne({ 'name': 'super_admin' });
         const password = "admin@123";
@@ -38,7 +39,6 @@ const seedDB = async () => {
                 updated_at: new Date(),
             }]);
     }
-    return;
 };
 seedDB().then(() => {
     mongoose_1.default.connection.close();

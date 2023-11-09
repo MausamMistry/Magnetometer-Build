@@ -11,7 +11,7 @@ const store = async (req, res, next) => {
     }
     const validationRule = {
         "type": "required|string",
-        "url": "string",
+        "url": "required|string",
         "title": "required|string|exist:training_materials,title," + id,
         "description": "required|string",
     };

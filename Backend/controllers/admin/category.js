@@ -33,6 +33,7 @@ const get = (async (req, res) => {
     const session = await mongoose_1.default.startSession();
     session.startTransaction();
     try {
+        console.log("csds");
         const { search, per_page, page, sort_field, sort_direction } = req.query;
         let filterText = {};
         let filterParent = {};
@@ -111,8 +112,8 @@ const get = (async (req, res) => {
             },
         ]);
         const sendResponse = {
-            message: 'Category' + process.env.APP_GET_MESSAGE,
-            data: categoryData.length > 0 ? categoryData[0] : {},
+            'message': process.env.APP_GET_MESSAGE,
+            'data': categoryData.length > 0 ? categoryData[0] : {},
         };
         await session.commitTransaction();
         session.endSession();
@@ -122,7 +123,7 @@ const get = (async (req, res) => {
         const sendResponse = {
             message: err.message,
         };
-        logger.info('Category' + process.env.APP_GET_MESSAGE);
+        logger.info("Category Data get");
         logger.info(err);
         await session.abortTransaction();
         session.endSession();
@@ -138,8 +139,8 @@ const destroy = (async (req, res) => {
     try {
         await category_model_1.default.deleteMany({ _id: req.query.id, });
         const responseData = {
-            message: 'Category' + process.env.APP_DELETE_MESSAGE,
-            data: {},
+            'message': 'Category record has been deleted',
+            'data': {},
         };
         await session.commitTransaction();
         session.endSession();
@@ -149,7 +150,7 @@ const destroy = (async (req, res) => {
         const sendResponse = {
             message: err.message,
         };
-        logger.info('Category' + process.env.APP_DELETE_MESSAGE);
+        logger.info("Category destroy");
         logger.info(err);
         await session.abortTransaction();
         session.endSession();
@@ -172,8 +173,8 @@ const edit = (async (req, res) => {
     try {
         let id = req.query.id;
         const responseData = {
-            message: 'Category' + process.env.APP_EDIT_GET_MESSAGE,
-            data: await getData(id),
+            'message': 'Category edit data get successfully',
+            'data': await getData(id),
         };
         await session.commitTransaction();
         session.endSession();
@@ -183,7 +184,7 @@ const edit = (async (req, res) => {
         const sendResponse = {
             message: err.message,
         };
-        logger.info('Category' + process.env.APP_EDIT_GET_MESSAGE);
+        logger.info("Category data has been get successfully");
         logger.info(err);
         await session.abortTransaction();
         session.endSession();
@@ -204,8 +205,8 @@ const changeStatus = (async (req, res) => {
         await categoryData.save();
         const message = `Category status ${(status === "true") ? 'Approved' : 'Rejected'} successfully`;
         const responseData = {
-            message: message,
-            data: true,
+            'message': message,
+            'data': true,
         };
         await session.commitTransaction();
         session.endSession();
@@ -235,11 +236,11 @@ const store = (async (req, res) => {
         let message;
         if (id) {
             categoryData = await category_model_1.default.findOne({ _id: id });
-            message = 'Category' + process.env.APP_UPDATE_MESSAGE;
+            message = 'Category updated successfully';
         }
         else {
             categoryData = await new category_model_1.default();
-            message = 'Category' + process.env.APP_STORE_MESSAGE;
+            message = 'Category added successfully';
         }
         categoryData.name = name;
         if (parent_id) {
@@ -249,8 +250,8 @@ const store = (async (req, res) => {
         await session.commitTransaction();
         await session.endSession();
         const responseData = {
-            message: message,
-            data: await getData(categoryData._id),
+            'message': message,
+            'data': await getData(categoryData._id),
         };
         return responseMiddleware_1.default.sendSuccess(req, res, responseData);
     }
@@ -258,7 +259,7 @@ const store = (async (req, res) => {
         const sendResponse = {
             message: err.message,
         };
-        logger.info('Category' + process.env.APP_STORE_MESSAGE);
+        logger.info("store Category Data");
         logger.info(err);
         await session.abortTransaction();
         session.endSession();

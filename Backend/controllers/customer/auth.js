@@ -15,76 +15,51 @@ const otp_model_1 = __importDefault(require("../../models/otp-model"));
 const notification_model_1 = __importDefault(require("../../models/notification-model"));
 const commonFunction_1 = __importDefault(require("../../helper/commonFunction"));
 const stripe = require('stripe')(process.env.STRIPE_KEY);
-const firebase_1 = __importDefault(require("../../helper/firebase"));
 const uniqid_1 = __importDefault(require("uniqid"));
-const moment_1 = __importDefault(require("moment"));
-const service_request_model_1 = __importDefault(require("../../models/service-request-model"));
-const report_request_model_1 = __importDefault(require("../../models/report-request.model"));
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // ============================================= Over Here Include Library =============================================
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 const userDataGet = async (id) => {
-    let filterText = {
-        _id: new mongoose_1.default.Types.ObjectId(id)
-    };
-    const userData = await user_model_1.default.aggregate([
-        {
-            $lookup: {
-                from: 'service_types',
-                localField: 'service_type_id',
-                foreignField: '_id',
-                as: 'serviceTypeData'
-            }
-        },
-        { $unwind: { path: "$serviceTypeData", preserveNullAndEmptyArrays: true } },
-        {
-            $project: {
-                _id: 1,
-                first_name: 1,
-                last_name: 1,
-                email: 1,
-                role_id: 1,
-                profile_photo: 1,
-                user_name: 1,
-                type: 1,
-                mobile_no: 1,
-                date_of_birth: 1,
-                location: 1,
-                service_type_id: 1,
-                company_name: 1,
-                upload_brochure: 1,
-                "serviceTypeData._id": 1,
-                "serviceTypeData.name": 1,
-            },
-        },
-        { $match: filterText },
-    ]);
-    // const userData: any = await User.findById(id).select(
-    // 	"_id first_name last_name email role_id profile_photo user_name type mobile_no date_of_birth location service_type_id company_name upload_brochure"
-    // );
-    return userData[0];
+    const userData = await user_model_1.default.findById(id).select("_id first_name last_name email role_id profile_photo user_name type mobile_no date_of_birth location service_type_id company_name upload_brochure");
+    return userData ? userData : {};
 };
-const register = async (req, res) => {
+const register1 = async (req, res) => {
     try {
-        const { mobile_no, email, first_name, last_name, type, user_name, date_of_birth, password, location, profile_photo, firebase_token, service_type_id, company_name, upload_brochure, token } = req.body;
+        const { email, first_name, last_name, type, user_name, date_of_birth, password, location, profile_photo, firebase_token, service_type_id, company_name, token } = req.body;
         const passwordHash = await bcrypt_1.default.hash(password, Number(10));
         if (!token) {
             const sendResponse = {
-                message: process.env.APP_TOKEN_INVALID,
+                message: "token is not valid or missing",
             };
             return responseMiddleware_1.default.sendError(res, sendResponse);
         }
         const clientData = await jwt_1.default.decode(token);
-        // if (!clientData.mobile_no) {
-        // 	const sendResponse: any = {
-        // 		message: "token is not valid or missing",
-        // 	};
-        // 	return response.sendError(res, sendResponse);
-        // }
+        if (!clientData.mobile_no) {
+            const sendResponse = {
+                message: "token is not valid or missing",
+            };
+            return responseMiddleware_1.default.sendError(res, sendResponse);
+        }
+        // const userFound = User.findOne({mobile_no:clientData.mobile_no})
+        // const userData: any = await User.findOneAndUpdate({
+        // 	mobile_no: clientData.mobile_no
+        // }, {
+        // 	unique_id: uniqid(),
+        // 	first_name: first_name,
+        // 	last_name: last_name,
+        // 	user_name: user_name,
+        // 	type: type,
+        // 	email: email,
+        // 	profile_photo: profile_photo,
+        // 	location: location,
+        // 	date_of_birth: date_of_birth,
+        // 	password: passwordHash,
+        // 	is_verified: true,
+        // });
         let updateData = {
             unique_id: (0, uniqid_1.default)(),
+            profile_photo: profile_photo,
             first_name: first_name,
-            mobile_no: mobile_no,
             last_name: last_name,
             user_name: user_name,
             type: type,
@@ -93,28 +68,19 @@ const register = async (req, res) => {
             location: location,
             password: passwordHash,
             is_verified: true,
-            profile_photo: profile_photo ? profile_photo : process.env.DUMMY_PROFILE_IMAGE
         };
         if (Number(type) === 2) {
-            updateData.upload_brochure = upload_brochure;
             updateData.company_name = company_name;
             updateData.service_type_id = new mongoose_1.default.Types.ObjectId(service_type_id);
         }
-        let updateCondition = {};
-        if (clientData.mobile_no) {
-            updateCondition = { mobile_no: clientData.mobile_no };
-        }
-        if (clientData.email) {
-            updateCondition = { email: clientData.email };
-        }
-        const userData = await user_model_1.default.findOneAndUpdate(updateCondition, updateData);
+        const userData = await user_model_1.default.findOneAndUpdate({ mobile_no: clientData.mobile_no }, updateData);
         let balance = 0;
         const customerInStripe = await stripe.customers.create({
             description: 'Create New Customer ' + email,
             balance: balance,
             email: email,
             name: first_name + last_name,
-            phone: userData.mobile_no,
+            phone: clientData.mobile_no,
         });
         userData.stripe_user_id = customerInStripe.id;
         userData.stripe_payload = JSON.stringify(customerInStripe);
@@ -136,61 +102,102 @@ const register = async (req, res) => {
         if (Number(type) === 2) {
             userName = 'Service Provider';
         }
-        if (userData && userData._id) {
-            if (userData) {
-                // start here Push 
-                let pushTitle = first_name + ' ' + last_name + ' register successfully';
-                let message = 'new' + ' ' + userName + ' ' + 'registered successfully';
-                let payload = userData;
-                await notification_model_1.default.create({
-                    user_id: userData._id,
-                    title: pushTitle,
-                    message: message,
-                    payload: JSON.stringify(payload),
-                });
-                const userNotification = await user_model_1.default.findOne({
-                    _id: new mongoose_1.default.Types.ObjectId(userData._id)
-                });
-                let getToken = (await user_token_model_1.default.find({
-                    user_id: new mongoose_1.default.Types.ObjectId(userData._id)
-                })).map(value => value.firebase_token);
-                if (userNotification && userNotification.firebase_is_active) {
-                    try {
-                        let dataStore = getToken;
-                        let notificationData = {
-                            "type": 1,
-                            "title": pushTitle,
-                            "message": message,
-                            "extraData": JSON.stringify(payload),
-                            "updatedAt": new Date().toString(),
-                        };
-                        let fcmData = {
-                            "subject": pushTitle,
-                            "content": message,
-                            "data": notificationData,
-                            "image": ""
-                        };
-                        let token = dataStore;
-                        await firebase_1.default.sendPushNotification(token, fcmData);
-                    }
-                    catch (err) {
-                        logger.info("sendPushNotification");
-                        logger.info(err);
-                    }
-                }
-            }
-            // end here push 
-        }
-        let sendData = await userDataGet(userData._id);
-        // let customersData = sendData.toJSON();
-        sendData["access_token"] = tokenLogin;
+        // if (userData && userData._id) {
+        // 	if (userData) {
+        // 		// start here Push 
+        // 		let pushTitle: any = first_name + last_name + ' register successfully';
+        // 		let message: any = 'new' + userName + 'registered successfully';
+        // 		let payload: any = userData;
+        // 		await Notification.create({
+        // 			user_id: userData._id,
+        // 			title: pushTitle,
+        // 			message: message,
+        // 			payload: JSON.stringify(payload),
+        // 		})
+        // 		const userNotification = await User.findOne({
+        // 			_id: new mongoose.Types.ObjectId(userData._id)
+        // 		});
+        // 		let getToken: any = (await UserToken.find({
+        // 			user_id: new mongoose.Types.ObjectId(userData._id)
+        // 		})).map(value => value.firebase_token);
+        // 		if (userNotification && userNotification.firebase_is_active) {
+        // 			try {
+        // 				let dataStore: any = getToken;
+        // 				let notificationData = {
+        // 					"type": 1,
+        // 					"title": pushTitle,
+        // 					"message": message,
+        // 					"extraData": JSON.stringify(payload),
+        // 					"updatedAt": new Date().toString(),
+        // 				};
+        // 				let fcmData: any = {
+        // 					"subject": pushTitle,
+        // 					"content": message,
+        // 					"data": notificationData,
+        // 					"image": ""
+        // 				};
+        // 				let token: any = dataStore
+        // 				await FirebaseFunction.sendPushNotification(token, fcmData)
+        // 			}
+        // 			catch (err) {
+        // 				logger.info("sendPushNotification");
+        // 				logger.info(err);
+        // 			}
+        // 		}
+        // 	}
+        // 	// end here push 
+        // }
+        const sendData = await userDataGet(userData._id);
+        let customersData = sendData.toJSON();
+        customersData["access_token"] = tokenLogin;
         const sendResponse = {
-            data: sendData,
-            message: process.env.APP_USER_REGISTER,
+            data: customersData,
+            message: "you are Registerd successfully",
         };
         return responseMiddleware_1.default.sendSuccess(req, res, sendResponse);
     }
     catch (err) {
+        const sendResponse = {
+            message: err.message,
+        };
+        return responseMiddleware_1.default.sendError(res, sendResponse);
+    }
+};
+const register = async (req, res) => {
+    try {
+        const { email, name, type, clinic_name, date_of_birth, password, location, profile_photo, } = req.body;
+        // Check if the email already exists in the database
+        const existingUser = await user_model_1.default.findOne({ email });
+        if (existingUser) {
+            // Email is not unique, return an error response
+            const sendResponse = {
+                message: 'Email already exists. Please choose a different email.',
+            };
+            return responseMiddleware_1.default.sendError(res, sendResponse);
+        }
+        // If the email is unique, proceed with registration
+        const passwordHash = await bcrypt_1.default.hash(password, Number(10));
+        // Create a new user in the database
+        const newUser = new user_model_1.default({
+            email,
+            name,
+            type,
+            clinic_name,
+            date_of_birth,
+            password: passwordHash,
+            location,
+            profile_photo,
+        });
+        // Save the new user to the database
+        await newUser.save();
+        // Return a success response
+        const sendResponse = {
+            message: 'Registration successful!',
+        };
+        return responseMiddleware_1.default.sendSuccess(req, res, sendResponse);
+    }
+    catch (err) {
+        // Handle any other errors that might occur during registration
         const sendResponse = {
             message: err.message,
         };
@@ -203,7 +210,7 @@ const forgetPassword = async (req, res) => {
         const user = await user_model_1.default.findOne({ email: email });
         if (!user) {
             const sendResponse = {
-                message: process.env.APP_WITH_EMAIL_NOT_EXITS,
+                message: "user with given email doesn't exist",
             };
             return responseMiddleware_1.default.sendError(res, sendResponse);
         }
@@ -226,7 +233,7 @@ const forgetPassword = async (req, res) => {
         ]);
         try {
             let message = process.env.APP_NAME + " is your Otp  " + otp;
-            //start  send Sms onMobile
+            //start  send email
             await commonFunction_1.default.smsGatway(user.mobile_no, message);
         }
         catch (err) {
@@ -260,7 +267,7 @@ const forgetPassword = async (req, res) => {
                 token: token,
                 otp: otp,
             },
-            message: process.env.APP_OTP_SEND_EMAIL,
+            message: "Otp sent on the registred Email Address",
         };
         return responseMiddleware_1.default.sendSuccess(req, res, sendResponse);
     }
@@ -276,7 +283,7 @@ const resetPassword = async (req, res) => {
         const { password, confirm_password, token } = req.body;
         if (!token) {
             const sendResponse = {
-                message: process.env.APP_INVALID_TOKEN_MESSAGE,
+                message: "token is not valid or missing",
             };
             return responseMiddleware_1.default.sendError(res, sendResponse);
         }
@@ -284,7 +291,7 @@ const resetPassword = async (req, res) => {
         const expired = new Date(clientData.expiry) <= new Date();
         if (expired) {
             const sendResponse = {
-                message: process.env.APP_INVALID_OTP_MESSAGE,
+                message: "OTP is incorrect",
             };
             return responseMiddleware_1.default.sendError(res, sendResponse);
         }
@@ -293,7 +300,7 @@ const resetPassword = async (req, res) => {
             password: passwordHash,
         });
         const sendResponse = {
-            message: process.env.APP_PASSWROD_CHANGED_MESSAGE,
+            message: "Password Successfully Changed",
             data: {}
         };
         return responseMiddleware_1.default.sendSuccess(req, res, sendResponse);
@@ -309,29 +316,26 @@ const login = async (req, res) => {
     try {
         const { email, password, firebase_token } = req.body;
         const userData = await user_model_1.default.findOne({
-            $or: [
-                { 'email': email },
-                { 'user_name': { $regex: `${email}`, $options: "i" } }
-            ],
+            $or: [{ 'email': email }, { 'user_name': email }],
             deleted_by: null,
         });
         if (userData) {
             if (!userData.password) {
                 const sendResponse = {
-                    message: process.env.APP_INVALID_PASSWORD_MESSAGE,
+                    message: "Invalid password",
                 };
                 return responseMiddleware_1.default.sendError(res, sendResponse);
             }
             if (!userData.is_active) {
                 const sendResponse = {
-                    message: process.env.APP_ACCOUND_BLOCKED_MESSAGE,
+                    message: "your account is blocked please contact to admin",
                 };
                 return responseMiddleware_1.default.sendError(res, sendResponse);
             }
             const ispasswordmatch = await bcrypt_1.default.compare(password, userData.password);
             if (!ispasswordmatch) {
                 const sendResponse = {
-                    message: process.env.APP_INVALID_PASSWORD_MESSAGE,
+                    message: "Wrong Password",
                 };
                 return responseMiddleware_1.default.sendError(res, sendResponse);
             }
@@ -349,18 +353,18 @@ const login = async (req, res) => {
                     });
                 }
                 const sendData = await userDataGet(userData._id);
-                // let customersData = sendData.toJSON();
-                sendData["access_token"] = token;
+                let customersData = sendData.toJSON();
+                customersData["access_token"] = token;
                 const sendResponse = {
-                    data: sendData ? sendData : {},
-                    message: process.env.APP_LOGGED_MESSAGE,
+                    data: customersData ? customersData : {},
+                    message: "you are logged in successfully",
                 };
                 return responseMiddleware_1.default.sendSuccess(req, res, sendResponse);
             }
         }
         else {
             const sendResponse = {
-                message: process.env.APP_EMAIL_PASSWROD_INCORRECT_MESSAGE,
+                message: "The username or email or password is incorrect.",
             };
             return responseMiddleware_1.default.sendError(res, sendResponse);
         }
@@ -369,7 +373,7 @@ const login = async (req, res) => {
         const sendResponse = {
             message: err.message,
         };
-        logger.info(process.env.APP_EMAIL_PASSWROD_INCORRECT_MESSAGE);
+        logger.info("Login");
         logger.info(err);
         return responseMiddleware_1.default.sendError(res, sendResponse);
     }
@@ -394,21 +398,21 @@ const changePassword = async (req, res) => {
                     new: true,
                 });
                 const sendResponse = {
-                    message: process.env.APP_PASSWROD_CHANGED_MESSAGE,
+                    message: "password changed successfully",
                     data: {}
                 };
                 return responseMiddleware_1.default.sendSuccess(req, res, sendResponse);
             }
             else {
                 const sendResponse = {
-                    message: process.env.APP_PASSWORD_INCORRECT_MESSAGE,
+                    message: "oops, old password is incorrect",
                 };
                 return responseMiddleware_1.default.sendError(res, sendResponse);
             }
         }
         else {
             const sendResponse = {
-                message: process.env.APP_ADMIN_NOT_FOUND_MESSAGE,
+                message: "Admin not found",
             };
             return responseMiddleware_1.default.sendError(res, sendResponse);
         }
@@ -417,7 +421,7 @@ const changePassword = async (req, res) => {
         const sendResponse = {
             message: err.message,
         };
-        logger.info(process.env.APP_PASSWROD_CHANGED_MESSAGE);
+        logger.info("change Password");
         logger.info(err);
         return responseMiddleware_1.default.sendError(res, sendResponse);
     }
@@ -433,7 +437,7 @@ const readNotification = async (req, res) => {
         });
         const sendResponse = {
             data: {},
-            message: process.env.APP_ALL_NOTIFOCATION_READ_MESSAGE,
+            message: "read all notification successfully",
         };
         return responseMiddleware_1.default.sendSuccess(req, res, sendResponse);
     }
@@ -441,7 +445,7 @@ const readNotification = async (req, res) => {
         const sendResponse = {
             message: err.message,
         };
-        logger.info(process.env.APP_ALL_NOTIFOCATION_READ_MESSAGE);
+        logger.info("read notification");
         logger.info(err);
         return responseMiddleware_1.default.sendError(res, sendResponse);
     }
@@ -455,7 +459,7 @@ const getCountNotification = async (req, res) => {
         ]);
         const sendResponse = {
             data: (notificationData.length) > 0 ? notificationData : {},
-            message: process.env.APP_GET_NOTIFOCATION_COUNT_MESSAGE,
+            message: "get count notification successfully",
         };
         return responseMiddleware_1.default.sendSuccess(req, res, sendResponse);
     }
@@ -463,7 +467,7 @@ const getCountNotification = async (req, res) => {
         const sendResponse = {
             message: err.message,
         };
-        logger.info(process.env.APP_GET_NOTIFOCATION_COUNT_MESSAGE);
+        logger.info("get count notification");
         logger.info(err);
         return responseMiddleware_1.default.sendError(res, sendResponse);
     }
@@ -529,7 +533,7 @@ const getNotification = async (req, res) => {
                 data: notificationData,
                 total: countData,
             },
-            message: process.env.APP_GET_NOTIFOCATION_COUNT_MESSAGE,
+            message: "get notification successfully",
         };
         return responseMiddleware_1.default.sendSuccess(req, res, sendResponse);
     }
@@ -537,60 +541,7 @@ const getNotification = async (req, res) => {
         const sendResponse = {
             message: err.message,
         };
-        logger.info(process.env.APP_GET_NOTIFOCATION_COUNT_MESSAGE);
-        logger.info(err);
-        return responseMiddleware_1.default.sendError(res, sendResponse);
-    }
-};
-const clearNotification = async (req, res) => {
-    try {
-        // @ts-ignore
-        const user_id = req?.user?._id;
-        let filterText = {};
-        filterText = {
-            user_id: new mongoose_1.default.Types.ObjectId(user_id),
-        };
-        await notification_model_1.default.deleteMany(filterText);
-        const sendResponse = {
-            message: 'Notification' + process.env.APP_DELETE_MESSAGE,
-            data: {},
-        };
-        return responseMiddleware_1.default.sendSuccess(req, res, sendResponse);
-    }
-    catch (err) {
-        const sendResponse = {
-            message: err.message,
-        };
-        logger.info(process.env.APP_GET_NOTIFOCATION_COUNT_MESSAGE);
-        logger.info(err);
-        return responseMiddleware_1.default.sendError(res, sendResponse);
-    }
-};
-const clearSelectedNotification = async (req, res) => {
-    try {
-        // @ts-ignore
-        const user_id = req?.user?._id;
-        const { id } = req.body;
-        console.log('idd', id);
-        // let filterText: object = {}
-        // filterText = {
-        // 	user_id: new mongoose.Types.ObjectId(user_id),
-        // };
-        // const objectIdsToDelete = id.map((ids: any) => new mongoose.Types.ObjectId(ids));
-        if (id) {
-            await notification_model_1.default.deleteMany({ _id: { $in: id } });
-        }
-        const sendResponse = {
-            message: 'Notification' + process.env.APP_DELETE_MESSAGE,
-            data: {},
-        };
-        return responseMiddleware_1.default.sendSuccess(req, res, sendResponse);
-    }
-    catch (err) {
-        const sendResponse = {
-            message: err.message,
-        };
-        logger.info(process.env.APP_GET_NOTIFOCATION_COUNT_MESSAGE);
+        logger.info("get notification");
         logger.info(err);
         return responseMiddleware_1.default.sendError(res, sendResponse);
     }
@@ -601,7 +552,7 @@ const getProfile = async (req, res) => {
         const user_id = req?.user._id;
         const sendResponse = {
             data: await userDataGet(user_id),
-            message: process.env.APP_PROFILE_GET_MESSAGE,
+            message: "get profile successfully",
         };
         return responseMiddleware_1.default.sendSuccess(req, res, sendResponse);
     }
@@ -609,7 +560,7 @@ const getProfile = async (req, res) => {
         const sendResponse = {
             message: err.message,
         };
-        logger.info(process.env.APP_PROFILE_GET_MESSAGE);
+        logger.info("get Profile");
         logger.info(err);
         return responseMiddleware_1.default.sendError(res, sendResponse);
     }
@@ -640,7 +591,7 @@ const updateProfile = async (req, res) => {
         const userData = await userDataGet(user_id);
         const sendResponse = {
             data: userData ? userData : {},
-            message: process.env.APP_PROFILE_UPDATE_MESSAGE,
+            message: "update profile successfully",
         };
         return responseMiddleware_1.default.sendSuccess(req, res, sendResponse);
     }
@@ -648,38 +599,7 @@ const updateProfile = async (req, res) => {
         const sendResponse = {
             message: err.message,
         };
-        logger.info(process.env.APP_PROFILE_UPDATE_MESSAGE);
-        logger.info(err);
-        return responseMiddleware_1.default.sendError(res, sendResponse);
-    }
-};
-const uploadBrochure = async (req, res) => {
-    try {
-        const { upload_brochure, } = req.body;
-        // @ts-ignore
-        const user_id = req?.user?._id;
-        if (upload_brochure.indexOf(".pdf") != -1) {
-            await user_model_1.default.findByIdAndUpdate(user_id, {
-                upload_brochure: upload_brochure,
-            });
-            const sendResponse = {
-                data: {},
-                message: 'brochure' + process.env.APP_STORE_MESSAGE
-            };
-            return responseMiddleware_1.default.sendSuccess(req, res, sendResponse);
-        }
-        else {
-            const sendResponse = {
-                message: process.env.APP_PDF_FILE_ONLY_MESSAGE,
-            };
-            return responseMiddleware_1.default.sendError(res, sendResponse);
-        }
-    }
-    catch (err) {
-        const sendResponse = {
-            message: err.message,
-        };
-        logger.info('brochure' + process.env.APP_STORE_MESSAGE);
+        logger.info("update Profile");
         logger.info(err);
         return responseMiddleware_1.default.sendError(res, sendResponse);
     }
@@ -698,14 +618,14 @@ const logout = async (req, res) => {
                 is_active: false,
             });
             const sendResponse = {
-                message: process.env.APP_LOGOUT_MESSAGE,
+                message: "logout successfully",
                 data: {}
             };
             return responseMiddleware_1.default.sendSuccess(req, res, sendResponse);
         }
         else {
             const sendResponse = {
-                message: process.env.APP_INVALID_TOKEN_MESSAGE,
+                message: "Invalid token",
             };
             return responseMiddleware_1.default.sendError(res, sendResponse);
         }
@@ -714,81 +634,48 @@ const logout = async (req, res) => {
         const sendResponse = {
             message: err.message,
         };
-        logger.info(process.env.APP_LOGOUT_MESSAGE);
+        logger.info("Logout");
         logger.info(err);
         return responseMiddleware_1.default.sendError(res, sendResponse);
     }
 };
 const mobileVerification = async (req, res) => {
     try {
-        const { mobile_no, email } = req.body;
-        let dataCheking = {};
-        if (mobile_no) {
-            dataCheking = { mobile_no: mobile_no };
-        }
-        if (email) {
-            dataCheking = { email: email };
-        }
-        let user = await user_model_1.default.findOne(dataCheking);
+        const { mobile_no } = req.body;
+        const user = await user_model_1.default.findOne({ mobile_no: mobile_no });
         const otp = Math.floor(1000 + Math.random() * 9000).toString(); //four digit otp
+        console.log(otp);
         if (user) {
             if (user.is_verified) {
                 const sendResponse = {
-                    message: process.env.APP_MOBILE_EXIST_MESSAGE,
+                    message: "User With This Mobile Already Exist",
                     data: {}
                 };
                 return responseMiddleware_1.default.sendError(res, sendResponse);
             }
         }
         else {
-            user = await user_model_1.default.create(dataCheking);
-        }
-        // dont remove
-        console.log(otp);
-        if (mobile_no) {
             try {
                 let message = process.env.APP_NAME + " is your Otp  " + otp;
                 //start  send email
                 const smsGatwayData = await commonFunction_1.default.smsGatway(mobile_no, message);
-                if (smsGatwayData === false) {
-                    const sendResponse = {
-                        message: `The number ${mobile_no} is not a valid phone number`,
-                    };
-                    return responseMiddleware_1.default.sendError(res, sendResponse);
-                }
+                // if (smsGatwayData === false) {
+                // 	const sendResponse: any = {
+                // 		message: `The number ${mobile_no} is not a valid phone number`,
+                // 	};
+                // 	return response.sendError(res, sendResponse);
+                // }
             }
             catch (err) {
                 logger.info("EmailwithMessage");
                 logger.info(err);
             }
-        }
-        if (email) {
-            try {
-                let to = user.email;
-                let subject = process.env.APP_NAME + ' Otp Is' + otp;
-                let template = 'otp-send';
-                let sendEmailTemplatedata = {
-                    otp: otp,
-                    app_name: process.env.APP_NAME,
-                };
-                let datta = {
-                    to: to,
-                    subject: subject,
-                    template: template,
-                    sendEmailTemplatedata: sendEmailTemplatedata
-                };
-                await commonFunction_1.default.sendEmailTemplate(datta);
-            }
-            catch (err) {
-                logger.info("Otp Send send email  ");
-                logger.info(err);
-            }
+            await user_model_1.default.create({ mobile_no: mobile_no });
         }
         const expiry = new Date();
         expiry.setMinutes(expiry.getMinutes() + 10);
         const token = await jwt_1.default.sign({
             mobile_no: mobile_no,
-            email: email,
             expiry: expiry,
         });
         await otp_model_1.default.create([
@@ -799,12 +686,13 @@ const mobileVerification = async (req, res) => {
                 expiry: expiry,
             },
         ]);
+        console.log('otp', otp);
         const sendResponse = {
             data: {
                 token: token,
                 otp: otp,
             },
-            message: process.env.APP_OTP_SEND_MESSAGE,
+            message: "Otp sent on the registred Phone",
         };
         return responseMiddleware_1.default.sendSuccess(req, res, sendResponse);
     }
@@ -815,244 +703,12 @@ const mobileVerification = async (req, res) => {
         return responseMiddleware_1.default.sendError(res, sendResponse);
     }
 };
-const getDataSR = (async (filterText) => {
-    let serviceRequestData = await service_request_model_1.default.aggregate([
-        { $match: filterText },
-        {
-            $lookup: {
-                from: "bids",
-                localField: "_id",
-                foreignField: "service_request_id",
-                as: "bidsData",
-            },
-        },
-        { $unwind: { path: "$bidsData", preserveNullAndEmptyArrays: true } },
-        {
-            $project: {
-                "_id": 1,
-                "status": 1,
-                "is_active": 1,
-                createdAtFormatted: {
-                    $dateToString: { format: "%m/%Y", date: "$createdAt" },
-                },
-                "bidsData.vendor_id": 1,
-            }
-        },
-        { $group: { _id: null, count: { $sum: 1 } } }
-    ]);
-    return serviceRequestData.length > 0 ? serviceRequestData[0]?.count : 0;
-});
-const countDataSr = async (filterText) => {
-    let srGetData = commonFunction_1.default.srGetData();
-    let countData = await service_request_model_1.default.aggregate([
-        ...srGetData,
-        {
-            $lookup: {
-                from: "bids",
-                localField: "_id",
-                foreignField: "service_request_id",
-                as: "bidsData",
-                pipeline: [
-                    {
-                        $lookup: {
-                            from: "users",
-                            localField: "vendor_id",
-                            foreignField: "_id",
-                            as: "vendorData",
-                        },
-                    },
-                ],
-            },
-        },
-        { $unwind: { path: "$bidsData", preserveNullAndEmptyArrays: true } },
-        {
-            $addFields: {
-                count: { $ifNull: ["$bidsData.count", "0"] },
-            },
-        },
-        { $match: filterText },
-        { $group: { _id: "$_id" } },
-        { $group: { _id: null, count: { $sum: 1 } } },
-    ]);
-    return countData.length > 0 ? countData[0].count : 0;
-};
-const dashboardCustomer = (async (req, res) => {
-    const user_id = req.query.id;
-    const userType = req.user.type;
-    try {
-        let monthArray = [];
-        let dataSRArray = [];
-        const today = new Date();
-        const currentMonth = (0, moment_1.default)(today).startOf('month').format('M');
-        for (let i = 0; i < Number(currentMonth); i++) {
-            let date = new Date(today.getFullYear(), today.getMonth() - i, 1);
-            let obj = {
-                month_text: (0, moment_1.default)(date).startOf('month').format('MMMM YYYY'),
-                month_digit: (0, moment_1.default)(date).startOf('month').format('MM/YYYY'),
-                start_date: (0, moment_1.default)(date).startOf('month').format('YYYY-MM-DD'),
-                end_date: (0, moment_1.default)(date).endOf('month').format('YYYY-MM-DD'),
-            };
-            monthArray.push(obj);
-        }
-        await monthArray.map(async (item, i) => {
-            let obj = {
-                initiated: await getDataSR({
-                    "user_id": new mongoose_1.default.Types.ObjectId(user_id),
-                    "status": "0",
-                    'is_active': true,
-                    "createdAt": {
-                        '$gte': new Date(item.start_date.toString()),
-                        '$lte': new Date(item.end_date.toString())
-                    }
-                }),
-                bids_received: await getDataSR({
-                    "user_id": new mongoose_1.default.Types.ObjectId(user_id),
-                    "status": "2",
-                    'is_active': true,
-                    "createdAt": {
-                        '$gte': new Date(item.start_date.toString()),
-                        '$lte': new Date(item.end_date.toString())
-                    }
-                }),
-                awarded: await getDataSR({
-                    "user_id": new mongoose_1.default.Types.ObjectId(user_id),
-                    "status": "8",
-                    'is_active': true,
-                    "createdAt": {
-                        '$gte': new Date(item.start_date.toString()),
-                        '$lte': new Date(item.end_date.toString())
-                    }
-                }),
-                completed: await getDataSR({
-                    "user_id": new mongoose_1.default.Types.ObjectId(user_id),
-                    "status": "5",
-                    'is_active': true,
-                    "createdAt": {
-                        '$gte': new Date(item.start_date.toString()),
-                        '$lte': new Date(item.end_date.toString())
-                    }
-                }),
-                closed: await getDataSR({
-                    "user_id": new mongoose_1.default.Types.ObjectId(user_id),
-                    "status": "4",
-                    'is_active': true,
-                    "createdAt": {
-                        '$gte': new Date(item.start_date.toString()),
-                        '$lte': new Date(item.end_date.toString())
-                    }
-                }),
-                disputed: await getDataSR({
-                    "user_id": new mongoose_1.default.Types.ObjectId(user_id),
-                    "status": "6",
-                    'is_active': true,
-                    "createdAt": {
-                        '$gte': new Date(item.start_date.toString()),
-                        '$lte': new Date(item.end_date.toString())
-                    }
-                }),
-                expired: await getDataSR({
-                    "user_id": new mongoose_1.default.Types.ObjectId(user_id),
-                    "status": "7",
-                    'is_active': true,
-                    "createdAt": {
-                        '$gte': new Date(item.start_date.toString()),
-                        '$lte': new Date(item.end_date.toString())
-                    }
-                }),
-                cancelled: await getDataSR({
-                    "user_id": new mongoose_1.default.Types.ObjectId(user_id),
-                    "status": "9",
-                    'is_active': true,
-                    "createdAt": {
-                        '$gte': new Date(item.start_date.toString()),
-                        '$lte': new Date(item.end_date.toString())
-                    }
-                }),
-                month_text: item.month_text,
-                month_digit: item.month_digit,
-                inedx: i + 1,
-            };
-            await dataSRArray.push(obj);
-        });
-        const data = {
-            serviceRequestInitiated: await service_request_model_1.default.find({ "status": 2, 'is_active': true, 'user_id': new mongoose_1.default.Types.ObjectId(user_id) }).count(),
-            serviceRequestOngoing: await service_request_model_1.default.find({
-                status: { $in: ["8"] },
-                // status: { $in: ["5", "6", "8"] },
-                'is_active': true,
-                'user_id': new mongoose_1.default.Types.ObjectId(user_id)
-            }).count(),
-            serviceRequestCompleted: await service_request_model_1.default.find({ "status": 5, 'is_active': true, 'user_id': new mongoose_1.default.Types.ObjectId(user_id) }).count(),
-            serviceRequestDisputed: await service_request_model_1.default.find({ "status": 6, 'is_active': true, 'user_id': new mongoose_1.default.Types.ObjectId(user_id) }).count(),
-            serviceRequestClosed: await service_request_model_1.default.find({
-                status: { $in: ["4", "10"] },
-                'is_active': true,
-                'user_id': new mongoose_1.default.Types.ObjectId(user_id)
-            }).count(),
-            serviceRequestExpired: await service_request_model_1.default.find({ "status": 7, 'is_active': true, 'user_id': new mongoose_1.default.Types.ObjectId(user_id) }).count(),
-            serviceRequestCancelled: await service_request_model_1.default.find({ "status": 9, 'is_active': true, 'user_id': new mongoose_1.default.Types.ObjectId(user_id) }).count(),
-            monthlyActivity: await dataSRArray,
-        };
-        let filterTextBlockeId = {};
-        let getReportUSer = (await report_request_model_1.default.find({
-            from_user_id: new mongoose_1.default.Types.ObjectId(user_id)
-        })).map(value => value.to_user_id);
-        // if (getReportUSer) {
-        // 	filterTextBlockeId = {
-        // 		$and: [{
-        // 			user_id: { $nin: getReportUSer },
-        // 			vendor_id: { $nin: getReportUSer },
-        // 		}]
-        // 	};
-        // }
-        const spDashBoardData = {
-            // serviceRequestJobForBidding: await ServiceRequest.find({ 'status': { $in: ["2", "3"] }, 'is_active': true }).count(),
-            serviceRequestJobForBidding: await countDataSr({
-                "bidsData.vendor_id": { $nin: [new mongoose_1.default.Types.ObjectId(user_id)] },
-                $and: [
-                    { 'is_active': true },
-                    { status: { $in: ["2", "3"] } },
-                    { user_id: { $nin: getReportUSer } },
-                    { vendor_id: { $nin: getReportUSer } },
-                ],
-            }),
-            serviceRequestMyOnGoingJob: await countDataSr({ 'is_active': true, "bidsData.vendor_id": new mongoose_1.default.Types.ObjectId(user_id), status: { $in: ["5", "6", "8"] } }),
-            ServiceRequestDeliverAndCloseJob: await countDataSr({ "bidsData.vendor_id": new mongoose_1.default.Types.ObjectId(user_id), $and: [{ status: { $in: ["4", "7", "10"] } }] }),
-            ServiceRequestCancelJob: await countDataSr({ "bidsData.vendor_id": new mongoose_1.default.Types.ObjectId(user_id), $and: [{ status: { $in: ["9"] } }] }),
-            ServiceRequestSubmitedBid: await countDataSr({
-                "bidsData.vendor_id": new mongoose_1.default.Types.ObjectId(user_id),
-                $and: [
-                    { "bidsData.status": { $in: ["1", "2", "4"] } },
-                    { "bidsData.is_active": true }
-                ],
-            }),
-            ServiceRequestAwareded: await countDataSr({ "bidsData.vendor_id": new mongoose_1.default.Types.ObjectId(user_id), $and: [{ status: { $in: ["3", "8"] } }] }),
-            serviceRequestCompleted: await countDataSr({ "bidsData.vendor_id": new mongoose_1.default.Types.ObjectId(user_id), $and: [{ status: { $in: ["5"] } }] }),
-            serviceRequestDisputed: await countDataSr({ "bidsData.vendor_id": new mongoose_1.default.Types.ObjectId(user_id), $and: [{ status: { $in: ["6"] } }] }),
-        };
-        const dashboardData = Number(userType) === 1 ? data : spDashBoardData;
-        const sendResponse = {
-            data: dashboardData ? dashboardData : {},
-            message: 'Dashboard' + process.env.APP_GET_MESSAGE,
-        };
-        return responseMiddleware_1.default.sendSuccess(req, res, sendResponse);
-    }
-    catch (err) {
-        const sendResponse = {
-            message: err.message,
-        };
-        logger.info('Dashboard' + process.env.APP_GET_MESSAGE);
-        logger.info(err);
-        return responseMiddleware_1.default.sendError(res, sendResponse);
-    }
-});
 // Export default
 exports.default = {
     register,
     forgetPassword,
     resetPassword,
     getNotification,
-    clearNotification,
     login,
     changePassword,
     getProfile,
@@ -1061,7 +717,4 @@ exports.default = {
     mobileVerification,
     getCountNotification,
     readNotification,
-    uploadBrochure,
-    dashboardCustomer,
-    clearSelectedNotification
 };

@@ -89,8 +89,8 @@ const get = (async (req, res) => {
             },
         ]);
         const sendResponse = {
-            message: 'Faq' + process.env.APP_GET_MESSAGE,
-            data: faqData.length > 0 ? faqData[0] : {},
+            'message': process.env.APP_GET_MESSAGE,
+            'data': faqData.length > 0 ? faqData[0] : {},
         };
         await session.commitTransaction();
         session.endSession();
@@ -100,7 +100,7 @@ const get = (async (req, res) => {
         const sendResponse = {
             message: err.message,
         };
-        logger.info('Faq' + process.env.APP_GET_MESSAGE);
+        logger.info("Faq Data get");
         logger.info(err);
         await session.abortTransaction();
         session.endSession();
@@ -116,8 +116,8 @@ const destroy = (async (req, res) => {
     try {
         await faq_model_1.default.deleteMany({ _id: req.query.id, });
         const responseData = {
-            message: 'Faq' + process.env.APP_DELETE_MESSAGE,
-            data: {},
+            'message': 'Faq record has been deleted',
+            'data': {},
         };
         await session.commitTransaction();
         session.endSession();
@@ -127,7 +127,7 @@ const destroy = (async (req, res) => {
         const sendResponse = {
             message: err.message,
         };
-        logger.info('Faq' + process.env.APP_DELETE_MESSAGE);
+        logger.info("Faq destroy");
         logger.info(err);
         await session.abortTransaction();
         session.endSession();
@@ -150,8 +150,8 @@ const edit = (async (req, res) => {
     try {
         let id = req.query.id;
         const responseData = {
-            message: 'Faq' + process.env.APP_EDIT_GET_MESSAGE,
-            data: await getData(id),
+            'message': 'Faq edit data get successfully',
+            'data': await getData(id),
         };
         await session.commitTransaction();
         session.endSession();
@@ -161,7 +161,7 @@ const edit = (async (req, res) => {
         const sendResponse = {
             message: err.message,
         };
-        logger.info('Faq' + process.env.APP_EDIT_GET_MESSAGE);
+        logger.info("Faq data has been get successfully");
         logger.info(err);
         await session.abortTransaction();
         session.endSession();
@@ -182,8 +182,8 @@ const changeStatus = (async (req, res) => {
         await faqData.save();
         const message = `Faq status ${(status === "true") ? 'Approved' : 'Rejected'} successfully`;
         const responseData = {
-            message: message,
-            data: true,
+            'message': message,
+            'data': true,
         };
         await session.commitTransaction();
         session.endSession();
@@ -213,11 +213,11 @@ const store = (async (req, res) => {
         let message;
         if (id) {
             faqData = await faq_model_1.default.findOne({ _id: id });
-            message = 'Faq' + process.env.APP_UPDATE_MESSAGE;
+            message = 'Faq updated successfully';
         }
         else {
             faqData = await new faq_model_1.default();
-            message = 'Faq' + process.env.APP_STORE_MESSAGE;
+            message = 'Faq added successfully';
         }
         faqData.question = question;
         faqData.answer = answer;
@@ -225,8 +225,8 @@ const store = (async (req, res) => {
         await session.commitTransaction();
         await session.endSession();
         const responseData = {
-            message: message,
-            data: await getData(faqData._id),
+            'message': message,
+            'data': await getData(faqData._id),
         };
         return responseMiddleware_1.default.sendSuccess(req, res, responseData);
     }
@@ -234,7 +234,7 @@ const store = (async (req, res) => {
         const sendResponse = {
             message: err.message,
         };
-        logger.info('Faq' + process.env.APP_STORE_MESSAGE);
+        logger.info("store Faq Data");
         logger.info(err);
         await session.abortTransaction();
         session.endSession();

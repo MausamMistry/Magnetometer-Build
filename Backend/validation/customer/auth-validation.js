@@ -10,17 +10,16 @@ const register = async (req, res, next) => {
         id = req.body.id;
     }
     const validationRule = {
-        "email": "required|string|email",
-        // "email": "required|string|email|exist:users,email," + id,
-        "first_name": "required|string",
-        "last_name": "required|string",
-        "token": "required|string",
+        "email": "required|string|email|exist:users,email," + id,
+        // "first_name": "required|string",
+        // "last_name": "required|string",
+        // "token": "required|string",
         "type": "required|string",
-        "user_name": "required|string|exist:users,user_name," + id,
+        // "user_name": "required|string|exist:users,user_name," + id,
         // mobile_no: "required|string|exist:users,mobile_no," + id,
         "password": "required|string",
-        "company_name": [{ "required_if": ['type', "2"] }],
-        "service_type_id": [{ "required_if": ['type', "2"] }]
+        // "company_name": [{ "required_if": ['type', "2"] }],
+        // "service_type_id": [{ "required_if": ['type', "2"] }]
     };
     validate_1.default.validatorUtilWithCallback(validationRule, {}, req, res, next);
 };
@@ -31,10 +30,10 @@ const profile = async (req, res, next) => {
     }
     const validationRule = {
         email: "required|string|email|exist:users,email," + id,
-        first_name: "required|string",
-        last_name: "required|string",
-        user_name: "required|string|exist:users,user_name," + id,
-        mobile_no: "required|string|exist:users,mobile_no," + id,
+        // first_name: "required|string",
+        // last_name: "required|string",
+        // user_name: "required|string|exist:users,user_name," + id,
+        // mobile_no: "required|string",
         date_of_birth: "required",
         location: "required",
     };
@@ -75,7 +74,7 @@ const resetPassword = async (req, res, next) => {
 };
 const verifyMobileNumber = async (req, res, next) => {
     const validationRule = {
-    // mobile_no: "required",
+        mobile_no: "required",
     };
     validate_1.default.validatorUtilWithCallback(validationRule, {}, req, res, next);
 };

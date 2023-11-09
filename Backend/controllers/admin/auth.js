@@ -11,175 +11,11 @@ const log4js_1 = __importDefault(require("log4js"));
 const logger = log4js_1.default.getLogger();
 const admin_model_1 = __importDefault(require("../../models/admin-model"));
 const admin_token_model_1 = __importDefault(require("../../models/admin-token-model"));
-const user_model_1 = __importDefault(require("../../models/user-model"));
 const otp_model_1 = __importDefault(require("../../models/otp-model"));
 const commonFunction_1 = __importDefault(require("../../helper/commonFunction"));
-const my_earning_model_1 = __importDefault(require("../../models/my-earning-model"));
-const service_request_model_1 = __importDefault(require("../../models/service-request-model"));
-const moment_1 = __importDefault(require("moment"));
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // ============================================= Over Here Include Library =============================================
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-const getDataSR = (async (filterText) => {
-    let serviceRequestData = await service_request_model_1.default.aggregate([
-        { $match: filterText },
-        {
-            $project: {
-                "_id": 1,
-                "status": 1,
-                "is_active": 1,
-                createdAtFormatted: {
-                    $dateToString: { format: "%m/%Y", date: "$createdAt" },
-                },
-            }
-        },
-        { $group: { _id: null, count: { $sum: 1 } } }
-    ]);
-    return serviceRequestData.length > 0 ? serviceRequestData[0]?.count : 0;
-});
-const dashboard = (async (req, res) => {
-    try {
-        const totalAdminSum = await my_earning_model_1.default.aggregate([
-            // { $match: { status: "9" } },
-            {
-                $group: {
-                    _id: null,
-                    totalReceivedAmount: {
-                        $sum: {
-                            $toDouble: "$admin_received_amount"
-                        }
-                    }
-                }
-            }
-        ]);
-        const totalSum = await my_earning_model_1.default.aggregate([
-            {
-                $group: {
-                    _id: null,
-                    totalReceivedAmount: {
-                        $sum: {
-                            $toDouble: "$admin_received_amount"
-                        }
-                    }
-                }
-            }
-        ]);
-        let monthArray = [];
-        let dataSRArray = [];
-        const today = new Date();
-        for (let i = 0; i < 6; i++) {
-            let date = new Date(today.getFullYear(), today.getMonth() - i, 1);
-            let obj = {
-                month_text: (0, moment_1.default)(date).startOf('month').format('MMMM YYYY'),
-                month_digit: (0, moment_1.default)(date).startOf('month').format('MM/YYYY'),
-                start_date: (0, moment_1.default)(date).startOf('month').format('YYYY-MM-DD'),
-                end_date: (0, moment_1.default)(date).endOf('month').format('YYYY-MM-DD'),
-            };
-            monthArray.push(obj);
-        }
-        let checkingLoop = await monthArray.map(async (item, i) => {
-            let obj = {
-                initiated: await getDataSR({
-                    "status": "0",
-                    'is_active': true,
-                    "createdAt": {
-                        '$gte': new Date(item.start_date.toString()),
-                        '$lte': new Date(item.end_date.toString())
-                    }
-                }),
-                bids_received: await getDataSR({
-                    "status": "2",
-                    'is_active': true,
-                    "createdAt": {
-                        '$gte': new Date(item.start_date.toString()),
-                        '$lte': new Date(item.end_date.toString())
-                    }
-                }),
-                awarded: await getDataSR({
-                    "status": "8",
-                    'is_active': true,
-                    "createdAt": {
-                        '$gte': new Date(item.start_date.toString()),
-                        '$lte': new Date(item.end_date.toString())
-                    }
-                }),
-                completed: await getDataSR({
-                    "status": "5",
-                    'is_active': true,
-                    "createdAt": {
-                        '$gte': new Date(item.start_date.toString()),
-                        '$lte': new Date(item.end_date.toString())
-                    }
-                }),
-                closed: await getDataSR({
-                    "status": "4",
-                    'is_active': true,
-                    "createdAt": {
-                        '$gte': new Date(item.start_date.toString()),
-                        '$lte': new Date(item.end_date.toString())
-                    }
-                }),
-                disputed: await getDataSR({
-                    "status": "6",
-                    'is_active': true,
-                    "createdAt": {
-                        '$gte': new Date(item.start_date.toString()),
-                        '$lte': new Date(item.end_date.toString())
-                    }
-                }),
-                expired: await getDataSR({
-                    "status": "7",
-                    'is_active': true,
-                    "createdAt": {
-                        '$gte': new Date(item.start_date.toString()),
-                        '$lte': new Date(item.end_date.toString())
-                    }
-                }),
-                cancelled: await getDataSR({
-                    "status": "9",
-                    'is_active': true,
-                    "createdAt": {
-                        '$gte': new Date(item.start_date.toString()),
-                        '$lte': new Date(item.end_date.toString())
-                    }
-                }),
-                month_text: item.month_text,
-                month_digit: item.month_digit,
-                inedx: i + 1,
-            };
-            await dataSRArray.push(obj);
-        });
-        const data = {
-            activeServiceProvider: await user_model_1.default.find({ "type": 2, 'is_active': true }).count(),
-            activeCustomer: await user_model_1.default.find({ "type": 1, 'is_active': true }).count(),
-            allServiceProvider: await user_model_1.default.find({ "type": 2 }).count(),
-            allCustomer: await user_model_1.default.find({ "type": 1 }).count(),
-            currentMonthErning: (totalAdminSum[0]) ? Math.round(totalAdminSum[0].totalReceivedAmount) : 0,
-            currentMonthErningTotal: (totalSum[0]) ? Math.round(totalSum[0].totalReceivedAmount) : 0,
-            serviceRequestInitiated: await service_request_model_1.default.find({ "status": 2, 'is_active': true }).count(),
-            serviceRequestOngoing: await service_request_model_1.default.find({ "status": 8 }).count(),
-            serviceRequestCompleted: await service_request_model_1.default.find({ "status": 5, 'is_active': true }).count(),
-            serviceRequestDisputed: await service_request_model_1.default.find({ "status": 6, 'is_active': true }).count(),
-            serviceRequestClosed: await service_request_model_1.default.find({ "status": 4, 'is_active': true }).count(),
-            serviceRequestExpired: await service_request_model_1.default.find({ "status": 7, 'is_active': true }).count(),
-            serviceRequestCancelled: await service_request_model_1.default.find({ "status": 9 }).count(),
-            monthlyActivity: await dataSRArray,
-        };
-        const sendResponse = {
-            data: data ? data : {},
-            message: 'Dashboard' + process.env.APP_GET_MESSAGE,
-        };
-        return responseMiddleware_1.default.sendSuccess(req, res, sendResponse);
-    }
-    catch (err) {
-        const sendResponse = {
-            message: err.message,
-        };
-        logger.info('Dashboard' + process.env.APP_GET_MESSAGE);
-        logger.info(err);
-        return responseMiddleware_1.default.sendError(res, sendResponse);
-    }
-});
 const adminsDataGet = (async (id) => {
     const adminData = await admin_model_1.default.findById(id).select("_id first_name last_name email role_id profile_photo");
     return adminData;
@@ -194,14 +30,14 @@ const login = (async (req, res) => {
         if (adminData) {
             if (!adminData.password) {
                 const sendResponse = {
-                    message: process.env.APP_INVALID_PASSWORD_MESSAGE,
+                    message: "Invalid password",
                 };
                 return responseMiddleware_1.default.sendError(res, sendResponse);
             }
             const ispasswordmatch = await bcrypt_1.default.compare(password, adminData.password);
             if (!ispasswordmatch) {
                 const sendResponse = {
-                    message: process.env.APP_INVALID_PASSWORD_MESSAGE,
+                    message: "Invalid password",
                 };
                 return responseMiddleware_1.default.sendError(res, sendResponse);
             }
@@ -223,14 +59,14 @@ const login = (async (req, res) => {
                 AdminsData['access_token'] = token;
                 const sendResponse = {
                     data: AdminsData ? AdminsData : {},
-                    message: process.env.APP_LOGGED_MESSAGE,
+                    message: "you are logged in successfully",
                 };
                 return responseMiddleware_1.default.sendSuccess(req, res, sendResponse);
             }
         }
         else {
             const sendResponse = {
-                message: process.env.APP_EMAIL_PASSWROD_INCORRECT_MESSAGE,
+                message: "The email or password is incorrect.",
             };
             return responseMiddleware_1.default.sendError(res, sendResponse);
         }
@@ -239,7 +75,7 @@ const login = (async (req, res) => {
         const sendResponse = {
             message: err.message,
         };
-        logger.info(process.env.APP_EMAIL_PASSWROD_INCORRECT_MESSAGE);
+        logger.info("Login");
         logger.info(err);
         return responseMiddleware_1.default.sendError(res, sendResponse);
     }
@@ -264,20 +100,20 @@ const changePassword = (async (req, res) => {
                     new: true
                 });
                 const sendResponse = {
-                    message: process.env.APP_PASSWROD_CHANGED_MESSAGE,
+                    message: "password changed successfully",
                 };
                 return responseMiddleware_1.default.sendSuccess(req, res, sendResponse);
             }
             else {
                 const sendResponse = {
-                    message: process.env.APP_INVALID_PASSWORD_MESSAGE,
+                    message: 'Oops, provide password is incorrect-+',
                 };
                 return responseMiddleware_1.default.sendError(res, sendResponse);
             }
         }
         else {
             const sendResponse = {
-                message: process.env.APP_ADMIN_NOT_FOUND_MESSAGE,
+                message: 'Admin not found',
             };
             return responseMiddleware_1.default.sendError(res, sendResponse);
         }
@@ -286,7 +122,7 @@ const changePassword = (async (req, res) => {
         const sendResponse = {
             message: err.message,
         };
-        logger.info(process.env.APP_ADMIN_NOT_FOUND_MESSAGE);
+        logger.info("change Password");
         logger.info(err);
         return responseMiddleware_1.default.sendError(res, sendResponse);
     }
@@ -300,7 +136,7 @@ const getProfile = (async (req, res) => {
         });
         const sendResponse = {
             data: adminData,
-            message: process.env.APP_PROFILE_GET_MESSAGE,
+            message: 'get profile successfully',
         };
         return responseMiddleware_1.default.sendSuccess(req, res, sendResponse);
     }
@@ -308,7 +144,7 @@ const getProfile = (async (req, res) => {
         const sendResponse = {
             message: err.message,
         };
-        logger.info(process.env.APP_PROFILE_GET_MESSAGE);
+        logger.info("get Profile");
         logger.info(err);
         return responseMiddleware_1.default.sendError(res, sendResponse);
     }
@@ -330,7 +166,7 @@ const updateProfile = (async (req, res) => {
         });
         const sendResponse = {
             data: adminData,
-            message: process.env.APP_PROFILE_UPDATE_MESSAGE,
+            message: 'update profile successfully',
         };
         return responseMiddleware_1.default.sendSuccess(req, res, sendResponse);
     }
@@ -338,7 +174,7 @@ const updateProfile = (async (req, res) => {
         const sendResponse = {
             message: err.message,
         };
-        logger.info(process.env.APP_PROFILE_UPDATE_MESSAGE);
+        logger.info("update Profile");
         logger.info(err);
         return responseMiddleware_1.default.sendError(res, sendResponse);
     }
@@ -357,13 +193,13 @@ const logout = (async (req, res) => {
                 is_active: false
             });
             const sendResponse = {
-                message: process.env.APP_LOGOUT_MESSAGE,
+                message: 'logout Admin successfully',
             };
             return responseMiddleware_1.default.sendSuccess(req, res, sendResponse);
         }
         else {
             const sendResponse = {
-                message: process.env.APP_INVALID_TOKEN_MESSAGE,
+                message: "Invalid token",
             };
             return responseMiddleware_1.default.sendError(res, sendResponse);
         }
@@ -372,7 +208,7 @@ const logout = (async (req, res) => {
         const sendResponse = {
             message: err.message,
         };
-        logger.info(process.env.APP_INVALID_TOKEN_MESSAGE);
+        logger.info("Logout");
         logger.info(err);
         return responseMiddleware_1.default.sendError(res, sendResponse);
     }
@@ -383,7 +219,7 @@ const forgetPassword = async (req, res) => {
         const admin = await admin_model_1.default.findOne({ email: email });
         if (!admin) {
             const sendResponse = {
-                message: process.env.APP_ADMIN_NOT_MESSAGE,
+                message: "admin with given email doesn't exist",
             };
             return responseMiddleware_1.default.sendError(res, sendResponse);
         }
@@ -425,12 +261,12 @@ const forgetPassword = async (req, res) => {
             await commonFunction_1.default.sendEmailTemplate(datta);
         }
         catch (err) {
-            logger.info(process.env.APP_ADMIN_NOT_MESSAGE);
+            logger.info("Forget Password send email  ");
             logger.info(err);
         }
         // Email Services write down
         const sendResponse = {
-            message: process.env.APP_LINK_SEND_MESSAGE,
+            message: "Link sent on the registred Mail Id",
         };
         return responseMiddleware_1.default.sendSuccess(req, res, sendResponse);
     }
@@ -446,7 +282,7 @@ const resetPassword = async (req, res) => {
         const { password, confirm_password, token } = req.body;
         if (!token) {
             const sendResponse = {
-                message: process.env.APP_INVALID_TOKEN_MESSAGE,
+                message: "token is not valid or missing",
             };
             return responseMiddleware_1.default.sendError(res, sendResponse);
         }
@@ -454,7 +290,7 @@ const resetPassword = async (req, res) => {
         const expired = new Date(clientData.expiry) <= new Date();
         if (expired) {
             const sendResponse = {
-                message: process.env.APP_INVALID_OTP_MESSAGE,
+                message: "Otp is not valid",
             };
             return responseMiddleware_1.default.sendError(res, sendResponse);
         }
@@ -463,7 +299,7 @@ const resetPassword = async (req, res) => {
             password: passwordHash,
         });
         const sendResponse = {
-            message: process.env.APP_PASSWROD_CHANGED_MESSAGE,
+            message: "Password Successfully Changed",
             data: {}
         };
         return responseMiddleware_1.default.sendSuccess(req, res, sendResponse);
@@ -480,7 +316,6 @@ exports.default = {
     login,
     changePassword,
     getProfile,
-    dashboard,
     updateProfile,
     forgetPassword,
     resetPassword,

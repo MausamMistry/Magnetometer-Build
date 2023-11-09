@@ -5,33 +5,26 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.sendPushNotification = void 0;
 const firebase_admin_1 = __importDefault(require("firebase-admin"));
-const app_1 = require("firebase-admin/app");
 const log4js_1 = __importDefault(require("log4js"));
 const logger = log4js_1.default.getLogger();
-var serviceAccount = require("../maintenance-master-5145c-firebase-adminsdk-94pz4-54fff8a476.json");
-(0, app_1.initializeApp)({
-    credential: firebase_admin_1.default.credential.cert(serviceAccount),
-});
+// var serviceAccount = require("../maintenance-master-5145c-firebase-adminsdk-94pz4-54fff8a476.json");
+// initializeApp({
+//     credential: admin.credential.cert(serviceAccount),
+// });
 const sendPushNotification = async (token, obj) => {
     if (token.length) {
-        // let dataSend: any = {
-        //     "type": obj.data.type.toString(),
-        //     "title": obj.data.title,
-        //     "message": obj.data.message,
-        //     "updatedAt": obj.data.updatedAt,
-        //     "data": obj.data.extraData
-        // }
         let dataSend = {
             "type": obj.data.type.toString(),
             "title": obj.data.title,
+            "message": obj.data.message,
             "updatedAt": obj.data.updatedAt,
+            "data": obj.data.extraData
         };
         await firebase_admin_1.default.messaging().sendMulticast({
             data: dataSend,
             notification: {
                 title: obj.data.title,
-                // body: obj.data.message,
-                body: ''
+                body: obj.data.message,
             },
             tokens: token,
         }).then((value) => {
