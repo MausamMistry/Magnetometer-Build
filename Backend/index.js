@@ -62,7 +62,14 @@ app.use("/api", index_1.default);
 const server = http.createServer(app);
 server.listen(port, async (req, res) => {
     if (process.env.MONGO_URI) {
-        await mongoose.connect(process.env.MONGO_URI);
+        await mongoose
+            .connect(process.env.MONGO_URI, {})
+            .then(() => {
+            console.log('Mongodb Connection ✅');
+        })
+            .catch((err) => {
+            console.log(err);
+        });
     }
     console.log("Server is running on Port: " + port);
     // logger.info('Express server started on port: ' + port);
