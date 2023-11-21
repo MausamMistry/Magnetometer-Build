@@ -599,6 +599,7 @@ const getProfile = async (req, res) => {
     try {
         // @ts-ignore
         const user_id = req?.user._id;
+        console.log("user_id", user_id);
         const sendResponse = {
             data: await userDataGet(user_id),
             message: process.env.APP_PROFILE_GET_MESSAGE,

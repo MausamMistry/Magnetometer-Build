@@ -3,25 +3,25 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-require('dotenv').config({ path: 'D:/oct/iAudiMeter/iAudioMeter-Backend' + '/.env' });
+require('dotenv').config({ path: 'D:/oct/Magnetometer App/Magnetometer-Backend' + '/.env' });
 const our_contact_us_model_1 = __importDefault(require("../models/our-contact-us-model"));
 const mongoose_1 = __importDefault(require("mongoose"));
 const contactUsData = [
     {
         key: 'email',
-        value: 'juhi@gmail.com'
+        value: 'maintenance.master.user@gmail.com'
     },
     {
         key: 'contact_no',
-        value: '123456789'
+        value: '+971501116173'
     },
     {
         key: 'location',
-        value: '{"address":"Sydney NSW, Australia","latitude":-33.8688197,"longitude":-33.8688197}'
+        value: '{"address":"101, Causeway Rd, River Park Society, Singanpor, Surat, Gujarat 395004, India","latitude":21.224911,"longitude":72.8073869}'
     },
     {
         key: 'website',
-        value: 'www.google.com'
+        value: 'http://34.235.150.200/home'
     },
     {
         key: 'admin_email',

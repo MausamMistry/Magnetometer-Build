@@ -9,6 +9,7 @@ const store = async (req, res, next) => {
         "our_services": "required",
         "vision": "required",
         "mission": "required",
+        "brochure": "required",
     };
     validate_1.default.validatorUtilWithCallback(validationRule, {}, req, res, next);
 };

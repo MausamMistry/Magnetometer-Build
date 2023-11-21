@@ -73,16 +73,10 @@ const get = (async (req, res) => {
                 };
             }
         }
-        if (Number(type) !== 3) {
+        if (type) {
             filterText = {
                 ...filterText,
                 "userData.type": type,
-            };
-        }
-        else {
-            filterText = {
-                ...filterText,
-                "user_id": { $exists: false }
             };
         }
         const contactUsData = await contactus_model_1.default.aggregate([
@@ -107,6 +101,11 @@ const get = (async (req, res) => {
                 },
             },
             { $unwind: { path: "$userData", preserveNullAndEmptyArrays: true } },
+            {
+                $addFields: {
+                    "_id": { $toString: "$_id" }
+                }
+            },
             {
                 $project: {
                     ...project,
@@ -139,8 +138,8 @@ const get = (async (req, res) => {
             },
         ]);
         const sendResponse = {
-            'message': process.env.APP_GET_MESSAGE,
-            'data': contactUsData.length > 0 ? contactUsData[0] : {},
+            message: 'Contact Us' + process.env.APP_GET_MESSAGE,
+            data: contactUsData.length > 0 ? contactUsData[0] : {},
         };
         await session.commitTransaction();
         session.endSession();
@@ -150,7 +149,7 @@ const get = (async (req, res) => {
         const sendResponse = {
             message: err.message,
         };
-        logger.info("ContactUs Data get");
+        logger.info('Contact Us' + process.env.APP_GET_MESSAGE);
         logger.info(err);
         await session.abortTransaction();
         session.endSession();
@@ -166,8 +165,8 @@ const destroy = (async (req, res) => {
     try {
         await contactus_model_1.default.deleteMany({ _id: req.query.id, });
         const responseData = {
-            'message': 'ContactUs record has been deleted',
-            'data': {},
+            message: 'Contact Us' + process.env.APP_DELETE_MESSAGE,
+            data: {},
         };
         await session.commitTransaction();
         session.endSession();
@@ -177,7 +176,7 @@ const destroy = (async (req, res) => {
         const sendResponse = {
             message: err.message,
         };
-        logger.info("ContactUs destroy");
+        logger.info('Contact Us' + process.env.APP_DELETE_MESSAGE);
         logger.info(err);
         await session.abortTransaction();
         session.endSession();
@@ -200,8 +199,8 @@ const edit = (async (req, res) => {
     try {
         let id = req.query.id;
         const responseData = {
-            'message': 'ContactUs edit data get successfully',
-            'data': await getData(id),
+            message: 'Contact Us' + process.env.APP_EDIT_GET_MESSAGE,
+            data: await getData(id),
         };
         await session.commitTransaction();
         session.endSession();
@@ -211,7 +210,7 @@ const edit = (async (req, res) => {
         const sendResponse = {
             message: err.message,
         };
-        logger.info("ContactUs data has been get successfully");
+        logger.info('Contact Us' + process.env.APP_EDIT_GET_MESSAGE);
         logger.info(err);
         await session.abortTransaction();
         session.endSession();
@@ -232,8 +231,8 @@ const changeStatus = (async (req, res) => {
         await contactUsData.save();
         const message = `ContactUs status ${(status === "true") ? 'Approved' : 'Rejected'} successfully`;
         const responseData = {
-            'message': message,
-            'data': true,
+            message: message,
+            data: true,
         };
         await session.commitTransaction();
         session.endSession();
@@ -263,11 +262,11 @@ const store = (async (req, res) => {
         let message;
         if (id) {
             contactUsData = await contactus_model_1.default.findOne({ _id: id });
-            message = 'ContactUs updated successfully';
+            message = 'Contact Us' + process.env.APP_UPDATE_MESSAGE;
         }
         else {
             contactUsData = await new contactus_model_1.default();
-            message = 'ContactUs added successfully';
+            message = 'Contact Us' + process.env.APP_STORE_MESSAGE;
         }
         contactUsData.email = email;
         contactUsData.first_name = first_name;
@@ -278,8 +277,8 @@ const store = (async (req, res) => {
         await session.commitTransaction();
         await session.endSession();
         const responseData = {
-            'message': message,
-            'data': await getData(contactUsData._id),
+            message: message,
+            data: await getData(contactUsData._id),
         };
         return responseMiddleware_1.default.sendSuccess(req, res, responseData);
     }
@@ -287,7 +286,7 @@ const store = (async (req, res) => {
         const sendResponse = {
             message: err.message,
         };
-        logger.info("store ContactUs Data");
+        logger.info('Contact Us' + process.env.APP_STORE_MESSAGE);
         logger.info(err);
         await session.abortTransaction();
         session.endSession();

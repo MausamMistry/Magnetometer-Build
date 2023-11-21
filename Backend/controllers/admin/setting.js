@@ -70,8 +70,8 @@ const get = (async (req, res) => {
             },
         ]);
         const sendResponse = {
-            'message': process.env.APP_GET_MESSAGE,
-            'data': settingsData.length > 0 ? settingsData[0] : {},
+            message: 'Setting' + process.env.APP_GET_MESSAGE,
+            data: settingsData.length > 0 ? settingsData[0] : {},
         };
         await session.commitTransaction();
         session.endSession();
@@ -81,7 +81,7 @@ const get = (async (req, res) => {
         const sendResponse = {
             message: err.message,
         };
-        logger.info("Settings Data get");
+        logger.info('Setting' + process.env.APP_GET_MESSAGE);
         logger.info(err);
         await session.abortTransaction();
         session.endSession();
@@ -97,8 +97,8 @@ const destroy = (async (req, res) => {
     try {
         await setting_model_1.default.deleteMany({ _id: req.query.id, });
         const responseData = {
-            'message': 'Settings record has been deleted',
-            'data': {},
+            message: 'Setting' + process.env.APP_DELETE_MESSAGE,
+            data: {},
         };
         await session.commitTransaction();
         session.endSession();
@@ -108,7 +108,7 @@ const destroy = (async (req, res) => {
         const sendResponse = {
             message: err.message,
         };
-        logger.info("Settings destroy");
+        logger.info('Setting' + process.env.APP_DELETE_MESSAGE);
         logger.info(err);
         await session.abortTransaction();
         session.endSession();
@@ -138,8 +138,8 @@ const edit = (async (req, res) => {
     try {
         let id = req.query.id;
         const responseData = {
-            'message': 'Settings edit data get successfully',
-            'data': await getData(id),
+            message: 'Setting' + process.env.APP_EDIT_GET_MESSAGE,
+            data: await getData(id),
         };
         await session.commitTransaction();
         session.endSession();
@@ -149,7 +149,7 @@ const edit = (async (req, res) => {
         const sendResponse = {
             message: err.message,
         };
-        logger.info("Settings data has been get successfully");
+        logger.info('Setting' + process.env.APP_EDIT_GET_MESSAGE);
         logger.info(err);
         await session.abortTransaction();
         session.endSession();
@@ -171,8 +171,8 @@ const changeStatus = (async (req, res) => {
         await settingsData.save();
         const message = `Settings status ${(status === "true") ? 'Approved' : 'Rejected'} successfully`;
         const responseData = {
-            'message': message,
-            'data': true,
+            message: message,
+            data: true,
         };
         await session.commitTransaction();
         session.endSession();
@@ -202,11 +202,11 @@ const store = (async (req, res) => {
         let message;
         if (id) {
             settingsData = await setting_model_1.default.findOne({ _id: id });
-            message = 'Setting updated successfully';
+            message = 'Setting' + process.env.APP_UPDATE_MESSAGE;
         }
         else {
             settingsData = await new setting_model_1.default();
-            message = 'Setting added successfully';
+            message = 'Setting' + process.env.APP_STORE_MESSAGE;
         }
         settingsData.setting_name = setting_name;
         settingsData.setting_value = setting_value;
@@ -214,8 +214,8 @@ const store = (async (req, res) => {
         await session.commitTransaction();
         await session.endSession();
         const responseData = {
-            'message': message,
-            'data': await getData(settingsData._id),
+            message: message,
+            data: await getData(settingsData._id),
         };
         return responseMiddleware_1.default.sendSuccess(req, res, responseData);
     }
@@ -223,7 +223,7 @@ const store = (async (req, res) => {
         const sendResponse = {
             message: err.message,
         };
-        logger.info("store Settings Data");
+        logger.info('Setting' + process.env.APP_STORE_MESSAGE);
         logger.info(err);
         await session.abortTransaction();
         session.endSession();

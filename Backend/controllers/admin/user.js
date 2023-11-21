@@ -68,8 +68,8 @@ const getAll = (async (req, res) => {
             },
         ]);
         const sendResponse = {
-            'message': process.env.APP_GET_MESSAGE,
-            'data': userData.length > 0 ? userData : {},
+            message: 'User' + process.env.APP_GET_MESSAGE,
+            data: userData.length > 0 ? userData : {},
         };
         await session.commitTransaction();
         session.endSession();
@@ -79,7 +79,7 @@ const getAll = (async (req, res) => {
         const sendResponse = {
             message: err.message,
         };
-        logger.info("User Data get");
+        logger.info('User' + process.env.APP_GET_MESSAGE);
         logger.info(err);
         await session.abortTransaction();
         session.endSession();
@@ -121,13 +121,15 @@ const get = (async (req, res) => {
                 ...filterText,
                 $or: filterTextField
             };
-            if (mongoose_1.default.Types.ObjectId.isValid(filterTextValue)) {
-                filterText = {
-                    $or: [
-                        { _id: new mongoose_1.default.Types.ObjectId(filterTextValue) },
-                    ],
-                };
-            }
+            // console.log(filterTextValue)
+            // if (mongoose.Types.ObjectId.isValid(filterTextValue)) {
+            //     filterText = {
+            //         $or: [
+            //             { _id: new mongoose.Types.ObjectId(filterTextValue) },
+            //         ],
+            //     }
+            // }
+            console.log(filterText);
         }
         const userData = await user_model_1.default.aggregate([
             {
@@ -140,6 +142,11 @@ const get = (async (req, res) => {
             },
             {
                 $unwind: { path: "$serviceTypeData", preserveNullAndEmptyArrays: true },
+            },
+            {
+                $addFields: {
+                    "_id": { $toString: "$_id" }
+                }
             },
             { $project: project },
             { $match: filterText },
@@ -166,8 +173,8 @@ const get = (async (req, res) => {
             },
         ]);
         const sendResponse = {
-            'message': process.env.APP_GET_MESSAGE,
-            'data': userData.length > 0 ? userData[0] : {},
+            message: 'User' + process.env.APP_GET_MESSAGE,
+            data: userData.length > 0 ? userData[0] : {},
         };
         await session.commitTransaction();
         session.endSession();
@@ -177,7 +184,7 @@ const get = (async (req, res) => {
         const sendResponse = {
             message: err.message,
         };
-        logger.info("User Data get");
+        logger.info('User' + process.env.APP_GET_MESSAGE);
         logger.info(err);
         await session.abortTransaction();
         session.endSession();
@@ -193,8 +200,8 @@ const destroy = (async (req, res) => {
     try {
         await user_model_1.default.deleteMany({ _id: req.query.id, });
         const responseData = {
-            'message': 'User record has been deleted',
-            'data': {},
+            message: 'User' + process.env.APP_DELETE_MESSAGE,
+            data: {},
         };
         await session.commitTransaction();
         session.endSession();
@@ -204,7 +211,7 @@ const destroy = (async (req, res) => {
         const sendResponse = {
             message: err.message,
         };
-        logger.info("User destroy");
+        logger.info('User' + process.env.APP_DELETE_MESSAGE);
         logger.info(err);
         await session.abortTransaction();
         session.endSession();
@@ -227,8 +234,8 @@ const edit = (async (req, res) => {
     try {
         let id = req.query.id;
         const responseData = {
-            'message': 'User edit data get successfully',
-            'data': await getData(id),
+            message: 'User' + process.env.APP_EDIT_GET_MESSAGE,
+            data: await getData(id),
         };
         await session.commitTransaction();
         session.endSession();
@@ -238,7 +245,7 @@ const edit = (async (req, res) => {
         const sendResponse = {
             message: err.message,
         };
-        logger.info("User data has been get successfully");
+        logger.info('User' + process.env.APP_EDIT_GET_MESSAGE);
         logger.info(err);
         await session.abortTransaction();
         session.endSession();
@@ -259,8 +266,8 @@ const changeStatus = (async (req, res) => {
         await userData.save();
         const message = `User status ${(status === "true") ? 'Approved' : 'Rejected'} successfully`;
         const responseData = {
-            'message': message,
-            'data': true,
+            message: message,
+            data: true,
         };
         await session.commitTransaction();
         session.endSession();
@@ -288,8 +295,8 @@ const changeStatusFirebase = (async (req, res) => {
         await userData.save();
         const message = `User Firebase Notification status ${(status === "true") ? 'Approved' : 'Not Allowed'} successfully`;
         const responseData = {
-            'message': message,
-            'data': true,
+            message: message,
+            data: true,
         };
         await session.commitTransaction();
         session.endSession();
@@ -317,8 +324,8 @@ const changeStatusEmail = (async (req, res) => {
         await userData.save();
         const message = `User Email Notifcation status ${(status === "true") ? 'Allowed' : 'Not Allowed'} successfully`;
         const responseData = {
-            'message': message,
-            'data': true,
+            message: message,
+            data: true,
         };
         await session.commitTransaction();
         session.endSession();
@@ -343,23 +350,26 @@ const store = (async (req, res) => {
     session.startTransaction();
     try {
         let id = req.body.id;
-        const { first_name, last_name, user_name, mobile_no, email, profile_photo, location, date_of_birth } = req.body;
+        const { first_name, last_name, user_name, mobile_no, email, profile_photo, location, date_of_birth, password, type, } = req.body;
         let userData = {};
         let message;
         if (id) {
             userData = await user_model_1.default.findOne({ _id: id });
-            message = 'User updated successfully';
+            message = 'User update succesfully';
         }
         else {
             userData = await new user_model_1.default();
-            message = 'User added successfully';
+            message = 'User added succesfully';
             userData.unique_id = (0, uniqid_1.default)();
         }
+        const passwordHash = await bcrypt_1.default.hash(password, Number(10));
         userData.first_name = first_name;
         userData.last_name = last_name;
+        userData.type = type;
         userData.user_name = user_name;
         userData.mobile_no = mobile_no;
         userData.email = email;
+        userData.password = passwordHash;
         userData.profile_photo = profile_photo;
         userData.location = location;
         userData.date_of_birth = date_of_birth;
@@ -367,8 +377,8 @@ const store = (async (req, res) => {
         await session.commitTransaction();
         await session.endSession();
         const responseData = {
-            'message': message,
-            'data': await getData(userData._id),
+            message: message,
+            data: await getData(userData._id),
         };
         return responseMiddleware_1.default.sendSuccess(req, res, responseData);
     }
@@ -376,7 +386,7 @@ const store = (async (req, res) => {
         const sendResponse = {
             message: err.message,
         };
-        logger.info("store User Data");
+        logger.info('User' + process.env.APP_STORE_MESSAGE);
         logger.info(err);
         await session.abortTransaction();
         session.endSession();
@@ -400,13 +410,13 @@ const changeUserPassword = async (req, res) => {
                 new: true,
             });
             const sendResponse = {
-                message: "password changed successfully",
+                message: process.env.APP_PASSWROD_CHANGED_MESSAGE,
             };
             return responseMiddleware_1.default.sendSuccess(req, res, sendResponse);
         }
         else {
             const sendResponse = {
-                message: "Oops, provide password is incorrect-+",
+                message: process.env.APP_EMAIL_PASSWROD_INCORRECT_MESSAGE,
             };
             return responseMiddleware_1.default.sendError(res, sendResponse);
         }
@@ -415,11 +425,67 @@ const changeUserPassword = async (req, res) => {
         const sendResponse = {
             message: err.message,
         };
-        logger.info("change Password");
+        logger.info(process.env.APP_PASSWROD_CHANGED_MESSAGE);
         logger.info(err);
         return responseMiddleware_1.default.sendError(res, sendResponse);
     }
 };
+const exportUser = (async (req, res) => {
+    const session = await mongoose_1.default.startSession();
+    session.startTransaction();
+    try {
+        const { type, sort_field, sort_direction } = req.query;
+        let filterText = {};
+        if (type) {
+            filterText = {
+                ...filterText,
+                type: type
+            };
+        }
+        let orders = {};
+        if (sort_field) {
+            orders[sort_field] = sort_direction == "ascend" ? 1 : -1;
+        }
+        else {
+            orders = { 'createdAt': -1 };
+        }
+        const userData = await user_model_1.default.aggregate([
+            { $match: filterText },
+            { $sort: orders },
+            {
+                $project: {
+                    "_id": 1,
+                    "first_name": 1,
+                    "last_name": 1,
+                    "user_name": 1,
+                    "type": 1,
+                    "mobile_no": 1,
+                    "email": 1,
+                    "profile_photo": 1,
+                    "location": 1,
+                    "is_active": 1,
+                }
+            },
+        ]);
+        const sendResponse = {
+            message: 'User' + process.env.APP_GET_MESSAGE,
+            data: userData.length > 0 ? userData : {},
+        };
+        await session.commitTransaction();
+        session.endSession();
+        return responseMiddleware_1.default.sendSuccess(req, res, sendResponse);
+    }
+    catch (err) {
+        const sendResponse = {
+            message: err.message,
+        };
+        logger.info('User' + process.env.APP_GET_MESSAGE);
+        logger.info(err);
+        await session.abortTransaction();
+        session.endSession();
+        return responseMiddleware_1.default.sendError(res, sendResponse);
+    }
+});
 // Export default
 exports.default = {
     get,
@@ -430,5 +496,6 @@ exports.default = {
     changeStatusEmail,
     edit,
     destroy,
-    changeUserPassword
+    changeUserPassword,
+    exportUser
 };

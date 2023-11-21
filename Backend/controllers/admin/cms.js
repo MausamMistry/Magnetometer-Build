@@ -24,7 +24,7 @@ const get = (async (req, res) => {
         let feesMapArray = await Object.fromEntries(fees_map.entries());
         const sendResponse = {
             data: feesMapArray ? feesMapArray : {},
-            message: "Cms get successfully",
+            message: 'CMS' + process.env.APP_GET_MESSAGE,
         };
         return responseMiddleware_1.default.sendSuccess(req, res, sendResponse);
     }
@@ -32,7 +32,7 @@ const get = (async (req, res) => {
         const sendResponse = {
             message: err.message,
         };
-        logger.info("Cms get");
+        logger.info('CMS' + process.env.APP_GET_MESSAGE);
         logger.info(err);
         return responseMiddleware_1.default.sendError(res, sendResponse);
     }
@@ -44,15 +44,7 @@ const store = (async (req, res) => {
     const session = await mongoose_1.default.startSession();
     session.startTransaction();
     try {
-        const { about_us, who_we_are, terms_condition, privacy_policy, our_services, mission, brochure, vision, } = req.body;
-        // await Cms.create({ key: 'about_us' ,value: about_us });
-        // await Cms.create({ key: 'who_we_are' ,value: who_we_are });
-        // await Cms.create({ key: 'terms_condition' ,value: terms_condition });
-        // await Cms.create({ key: 'privacy_policy' ,value: privacy_policy });
-        // await Cms.create({ key: 'our_services' ,value: our_services });
-        // await Cms.create({ key: 'vision' ,value: vision });
-        // await Cms.create({ key: 'mission' ,value: mission });
-        // await Cms.create({ key: 'brochure' ,value: brochure });
+        const { about_us, who_we_are, terms_condition, privacy_policy, our_services, mission, brochure, vision, get_our_mobile_app, training_matirial } = req.body;
         await cms_model_1.default.updateOne({ key: 'about_us' }, { $set: { value: about_us } });
         await cms_model_1.default.updateOne({ key: 'who_we_are' }, { $set: { value: who_we_are } });
         await cms_model_1.default.updateOne({ key: 'terms_condition' }, { $set: { value: terms_condition } });
@@ -61,10 +53,12 @@ const store = (async (req, res) => {
         await cms_model_1.default.updateOne({ key: 'vision' }, { $set: { value: vision } });
         await cms_model_1.default.updateOne({ key: 'mission' }, { $set: { value: mission } });
         await cms_model_1.default.updateOne({ key: 'brochure' }, { $set: { value: brochure } });
+        await cms_model_1.default.updateOne({ key: 'get_our_mobile_app' }, { $set: { value: get_our_mobile_app } });
+        await cms_model_1.default.updateOne({ key: 'training_matirial' }, { $set: { value: training_matirial } });
         await session.commitTransaction();
         await session.endSession();
         const sendResponse = {
-            'message': 'store Cms data successfully',
+            message: 'CMS' + process.env.APP_UPDATE_MESSAGE
         };
         return responseMiddleware_1.default.sendSuccess(req, res, sendResponse);
     }
@@ -72,7 +66,7 @@ const store = (async (req, res) => {
         const sendResponse = {
             message: err.message,
         };
-        logger.info("Cms data store in db");
+        logger.info('CMS' + process.env.APP_UPDATE_MESSAGE);
         logger.info(err);
         await session.abortTransaction();
         session.endSession();

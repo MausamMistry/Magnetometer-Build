@@ -89,8 +89,8 @@ const get = (async (req, res) => {
             },
         ]);
         const sendResponse = {
-            'message': process.env.APP_GET_MESSAGE,
-            'data': socialMediaData.length > 0 ? socialMediaData[0] : {},
+            message: 'Social Media' + process.env.APP_GET_MESSAGE,
+            data: socialMediaData.length > 0 ? socialMediaData[0] : {},
         };
         await session.commitTransaction();
         session.endSession();
@@ -100,7 +100,7 @@ const get = (async (req, res) => {
         const sendResponse = {
             message: err.message,
         };
-        logger.info("SocialMedia Data get");
+        logger.info('Social Media' + process.env.APP_GET_MESSAGE);
         logger.info(err);
         await session.abortTransaction();
         session.endSession();
@@ -116,8 +116,8 @@ const destroy = (async (req, res) => {
     try {
         await social_media_model_1.default.deleteMany({ _id: req.query.id, });
         const responseData = {
-            'message': 'SocialMedia record has been deleted',
-            'data': {},
+            message: 'Social Media' + process.env.APP_DELETE_MESSAGE,
+            data: {},
         };
         await session.commitTransaction();
         session.endSession();
@@ -127,7 +127,7 @@ const destroy = (async (req, res) => {
         const sendResponse = {
             message: err.message,
         };
-        logger.info("SocialMedia destroy");
+        logger.info('Social Media' + process.env.APP_DELETE_MESSAGE);
         logger.info(err);
         await session.abortTransaction();
         session.endSession();
@@ -150,8 +150,8 @@ const edit = (async (req, res) => {
     try {
         let id = req.query.id;
         const responseData = {
-            'message': 'SocialMedia edit data get successfully',
-            'data': await getData(id),
+            message: 'Social Media' + process.env.APP_EDIT_GET_MESSAGE,
+            data: await getData(id),
         };
         await session.commitTransaction();
         session.endSession();
@@ -161,7 +161,7 @@ const edit = (async (req, res) => {
         const sendResponse = {
             message: err.message,
         };
-        logger.info("SocialMedia data has been get successfully");
+        logger.info('Social Media' + process.env.APP_EDIT_GET_MESSAGE);
         logger.info(err);
         await session.abortTransaction();
         session.endSession();
@@ -183,8 +183,8 @@ const changeStatus = (async (req, res) => {
         await socialMediaData.save();
         const message = `SocialMedia status ${(status === "true") ? 'Approved' : 'Rejected'} successfully`;
         const responseData = {
-            'message': message,
-            'data': true,
+            message: message,
+            data: true,
         };
         await session.commitTransaction();
         session.endSession();
@@ -214,11 +214,11 @@ const store = (async (req, res) => {
         let message;
         if (id) {
             socialMediaData = await social_media_model_1.default.findOne({ _id: id });
-            message = 'Social Media updated successfully';
+            message = 'Social Media' + process.env.APP_UPDATE_MESSAGE;
         }
         else {
             socialMediaData = await new social_media_model_1.default();
-            message = 'Social Media added successfully';
+            message = 'Social Media' + process.env.APP_STORE_MESSAGE;
         }
         socialMediaData.name = name;
         socialMediaData.value = url_link;
@@ -227,8 +227,8 @@ const store = (async (req, res) => {
         await session.commitTransaction();
         await session.endSession();
         const responseData = {
-            'message': message,
-            'data': await getData(socialMediaData._id),
+            message: message,
+            data: await getData(socialMediaData._id),
         };
         return responseMiddleware_1.default.sendSuccess(req, res, responseData);
     }
@@ -236,7 +236,7 @@ const store = (async (req, res) => {
         const sendResponse = {
             message: err.message,
         };
-        logger.info("store SocialMedia Data");
+        logger.info('Social Media' + process.env.APP_STORE_MESSAGE);
         logger.info(err);
         await session.abortTransaction();
         session.endSession();

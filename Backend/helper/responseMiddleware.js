@@ -40,7 +40,7 @@ const sendSuccess = (async (req, res, data) => {
         "data": data.data
     };
     let response = await encryptData_1.default.EncryptedData(req, res, dataResponse);
-    res.status(200).send(dataResponse);
+    res.status(200).send(response);
 });
 const sendResponse = (async (res, data) => {
     let dataResponse = {

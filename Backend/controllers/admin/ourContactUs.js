@@ -24,7 +24,7 @@ const get = (async (req, res) => {
         let feesMapArray = await Object.fromEntries(fees_map.entries());
         const sendResponse = {
             data: feesMapArray,
-            message: "Our Contact Us get successfully",
+            message: 'Our Contact Us' + process.env.APP_GET_MESSAGE,
         };
         return responseMiddleware_1.default.sendSuccess(req, res, sendResponse);
     }
@@ -32,7 +32,7 @@ const get = (async (req, res) => {
         const sendResponse = {
             message: err.message,
         };
-        logger.info("Our Contact Us get");
+        logger.info('Our Contact Us' + process.env.APP_GET_MESSAGE);
         logger.info(err);
         return responseMiddleware_1.default.sendError(res, sendResponse);
     }
@@ -45,11 +45,6 @@ const store = (async (req, res) => {
     session.startTransaction();
     try {
         const { contact_no, email, website, location, admin_email } = req.body;
-        // await OurContactUs.create({ key: 'contact_no' ,value: contact_no });
-        // await OurContactUs.create({ key: 'email', value: email });
-        // await OurContactUs.create({ key: 'website',value: website });
-        // await OurContactUs.create({ key: 'location', value: location });
-        // await OurContactUs.create({key:'admin_email',value: admin_email })
         await our_contact_us_model_1.default.updateOne({ key: 'contact_no' }, { $set: { value: contact_no } });
         await our_contact_us_model_1.default.updateOne({ key: 'email' }, { $set: { value: email } });
         await our_contact_us_model_1.default.updateOne({ key: 'website' }, { $set: { value: website } });
@@ -58,7 +53,7 @@ const store = (async (req, res) => {
         await session.commitTransaction();
         await session.endSession();
         const sendResponse = {
-            'message': 'store Our Contact Us data successfully',
+            message: 'Our Contact Us' + process.env.APP_STORE_MESSAGE
         };
         return responseMiddleware_1.default.sendSuccess(req, res, sendResponse);
     }
@@ -66,7 +61,7 @@ const store = (async (req, res) => {
         const sendResponse = {
             message: err.message,
         };
-        logger.info("Our Contact Us data store in db");
+        logger.info('Our Contact Us' + process.env.APP_STORE_MESSAGE);
         logger.info(err);
         await session.abortTransaction();
         session.endSession();
