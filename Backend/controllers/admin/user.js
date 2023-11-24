@@ -27,21 +27,21 @@ const allFiled = [
     "mobile_no",
     "email",
     // "type",
-    "profile_photo",
+    // "profile_photo",
     // "location",
     // "date_of_birth",
-    "password",
+    // "password",
     "unique_id",
     "is_active",
-    "email_is_active",
-    "firebase_is_active",
-    "current_commission",
-    "commission_sing",
-    "createdAt",
-    "company_name",
-    "upload_brochure",
-    "serviceTypeData._id",
-    "serviceTypeData.name",
+    // "email_is_active",
+    // "firebase_is_active",
+    // "current_commission",
+    // "commission_sing",
+    // "createdAt",
+    // "company_name",
+    // "upload_brochure",
+    // "serviceTypeData._id",
+    // "serviceTypeData.name",
 ];
 let project = {};
 const getAllFiled = async () => {
@@ -98,8 +98,8 @@ const get = (async (req, res) => {
             type: type,
         };
         let filter = req.query.search;
-        filter = filter.replace(" 91", "");
-        filter = filter.replace("%", "");
+        filter = filter ? filter.replace(" 91", "") : "";
+        filter = filter ? filter.replace("%", "") : "";
         let filterTextValue = filter;
         let orders = {};
         let pageFind = page ? (Number(page) - 1) : 0;
@@ -134,18 +134,18 @@ const get = (async (req, res) => {
             // }
             console.log(filterText);
         }
-        const userData = await user_model_1.default.aggregate([
-            {
-                $lookup: {
-                    from: "service_types",
-                    localField: "service_type_id",
-                    foreignField: "_id",
-                    as: "serviceTypeData",
-                },
-            },
-            {
-                $unwind: { path: "$serviceTypeData", preserveNullAndEmptyArrays: true },
-            },
+        const userData = await sub_admin_model_1.default.aggregate([
+            // {
+            //     $lookup: {
+            //         from: "service_types",
+            //         localField: "service_type_id",
+            //         foreignField: "_id",
+            //         as: "serviceTypeData",
+            //     },
+            // },
+            // {
+            //     $unwind: { path: "$serviceTypeData", preserveNullAndEmptyArrays: true },
+            // },
             {
                 $addFields: {
                     "_id": { $toString: "$_id" }
@@ -201,9 +201,9 @@ const destroy = (async (req, res) => {
     const session = await mongoose_1.default.startSession();
     session.startTransaction();
     try {
-        await user_model_1.default.deleteMany({ _id: req.query.id, });
+        await sub_admin_model_1.default.deleteMany({ _id: req.query.id, });
         const responseData = {
-            message: 'User' + process.env.APP_DELETE_MESSAGE,
+            message: 'Sub-admin' + process.env.APP_DELETE_MESSAGE,
             data: {},
         };
         await session.commitTransaction();
@@ -214,7 +214,7 @@ const destroy = (async (req, res) => {
         const sendResponse = {
             message: err.message,
         };
-        logger.info('User' + process.env.APP_DELETE_MESSAGE);
+        logger.info('Sub-admin' + process.env.APP_DELETE_MESSAGE);
         logger.info(err);
         await session.abortTransaction();
         session.endSession();
@@ -370,7 +370,7 @@ const store = (async (req, res) => {
         let id = req.body.id;
         const { first_name, last_name, 
         // user_name,
-        mobile_no, email, profile_photo, role_id, 
+        mobile_no, email, profile_photo, 
         // location,
         // date_of_birth,
         password,
@@ -396,7 +396,7 @@ const store = (async (req, res) => {
         userData.email = email;
         userData.password = passwordHash;
         userData.profile_photo = profile_photo;
-        userData.role_id = role_id;
+        userData.role_id = "655f27ae004a47ef16f2770c";
         // userData.location = location;
         // userData.date_of_birth = date_of_birth;
         await userData.save();

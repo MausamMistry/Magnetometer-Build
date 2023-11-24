@@ -7,7 +7,7 @@ const schema = new mongoose_1.Schema({
     first_name: { type: String },
     last_name: { type: String },
     profile_photo: { type: String },
-    role_id: { type: mongoose_1.Schema.Types.Mixed, required: true },
+    role_id: { type: mongoose_1.Schema.Types.Mixed },
     is_active: { type: Boolean, default: false },
     mobile_no: { type: String, required: true }
 }, {
