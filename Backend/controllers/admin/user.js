@@ -9,6 +9,8 @@ const log4js_1 = __importDefault(require("log4js"));
 const logger = log4js_1.default.getLogger();
 const user_model_1 = __importDefault(require("../../models/user-model"));
 const sub_admin_model_1 = __importDefault(require("../../models/sub-admin-model"));
+// import SensorModel from '../../models/sensor-model';
+const firebase_1 = require("../../helper/firebase");
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const uniqid_1 = __importDefault(require("uniqid"));
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -52,7 +54,7 @@ const getAll = (async (req, res) => {
     const session = await mongoose_1.default.startSession();
     session.startTransaction();
     try {
-        const userData = await user_model_1.default.aggregate([
+        const userData = await sub_admin_model_1.default.aggregate([
             {
                 $project: {
                     "_id": 1,
@@ -60,16 +62,16 @@ const getAll = (async (req, res) => {
                     "last_name": 1,
                     // "user_name": 1,
                     // "type": 1,
-                    // "mobile_no": 1,
+                    "mobile_no": 1,
                     "email": 1,
                     "profile_photo": 1,
-                    "location": 1,
+                    // "location": 1,
                     "is_active": 1,
                 }
             },
         ]);
         const sendResponse = {
-            message: 'Sub-admin' + process.env.APP_GET_MESSAGE,
+            message: 'Sub-admin' + ' ' + process.env.APP_GET_MESSAGE,
             data: userData.length > 0 ? userData : {},
         };
         await session.commitTransaction();
@@ -80,7 +82,7 @@ const getAll = (async (req, res) => {
         const sendResponse = {
             message: err.message,
         };
-        logger.info('Sub-admin' + process.env.APP_GET_MESSAGE);
+        logger.info('Sub-admin' + ' ' + process.env.APP_GET_MESSAGE);
         logger.info(err);
         await session.abortTransaction();
         session.endSession();
@@ -174,7 +176,7 @@ const get = (async (req, res) => {
             },
         ]);
         const sendResponse = {
-            message: 'User' + process.env.APP_GET_MESSAGE,
+            message: 'Sub-admin' + process.env.APP_GET_MESSAGE,
             data: userData.length > 0 ? userData[0] : {},
         };
         await session.commitTransaction();
@@ -185,7 +187,7 @@ const get = (async (req, res) => {
         const sendResponse = {
             message: err.message,
         };
-        logger.info('User' + process.env.APP_GET_MESSAGE);
+        logger.info('Sub-admin' + process.env.APP_GET_MESSAGE);
         logger.info(err);
         await session.abortTransaction();
         session.endSession();
@@ -253,6 +255,21 @@ const edit = (async (req, res) => {
         return responseMiddleware_1.default.sendError(res, sendResponse);
     }
 });
+// const getSensorData = (async (token: string) => {
+//     const project = {
+//         $project: {
+//             "_id": 1,
+//             "sensordata": 1,
+//             "devicetoken": 1,
+//             "is_active": 1,
+//         }
+//     };
+//     const userData: any = await SensorModel.aggregate([
+//         { $match: { "devicetoken": (token) } }, // { "_id": new mongoose.Types.ObjectId(id) }
+//         { $project: project },
+//     ]);
+//     return userData.length > 0 ? userData[0] : {};
+// });
 // *******************************************************************************************
 // ================================= Change Status of Record =================================
 // *******************************************************************************************
@@ -496,6 +513,58 @@ const exportUser = (async (req, res) => {
         return responseMiddleware_1.default.sendError(res, sendResponse);
     }
 });
+const sendNotification = (async (req, res) => {
+    const session = await mongoose_1.default.startSession();
+    session.startTransaction();
+    try {
+        const token = req.body.token;
+        // const { type, sort_field, sort_direction } = req.query;
+        // let filterText: object = {};
+        // if (type) {
+        //     filterText = {
+        //         ...filterText,
+        //         type: type
+        //     };
+        // }
+        // let orders: any = {};
+        // if (sort_field) {
+        //     orders[sort_field as string] = sort_direction == "ascend" ? 1 : -1;
+        // } else {
+        //     orders = { 'createdAt': -1 };
+        // }
+        // const sensorData: any = await SensorModel.aggregate([
+        //     // { $match: filterText },
+        //     // { $sort: orders },
+        //     {
+        //         $project: {
+        //             "_id": 1,
+        //             "sensordata": 1,
+        //             "devicetoken": 1,
+        //             "is_active": 1,
+        //         }
+        //     },
+        // ]);
+        // const data = await getSensorData(token);
+        const notification = await (0, firebase_1.sendPushNotification)(token, {});
+        const sendResponse = {
+            message: 'User' + process.env.APP_GET_MESSAGE,
+            data: "" //data.length > 0 ? data : {},
+        };
+        await session.commitTransaction();
+        session.endSession();
+        return responseMiddleware_1.default.sendSuccess(req, res, sendResponse);
+    }
+    catch (err) {
+        const sendResponse = {
+            message: err.message,
+        };
+        logger.info('User' + process.env.APP_GET_MESSAGE);
+        logger.info(err);
+        await session.abortTransaction();
+        session.endSession();
+        return responseMiddleware_1.default.sendError(res, sendResponse);
+    }
+});
 // Export default
 exports.default = {
     get,
@@ -507,5 +576,6 @@ exports.default = {
     edit,
     destroy,
     changeUserPassword,
-    exportUser
+    exportUser,
+    sendNotification
 };
