@@ -44,21 +44,15 @@ const store = (async (req, res) => {
     const session = await mongoose_1.default.startSession();
     session.startTransaction();
     try {
-        const { about_us, who_we_are, terms_condition, privacy_policy, our_services, mission, brochure, vision, get_our_mobile_app, training_matirial } = req.body;
-        await cms_model_1.default.updateOne({ key: 'about_us' }, { $set: { value: about_us } });
-        await cms_model_1.default.updateOne({ key: 'who_we_are' }, { $set: { value: who_we_are } });
-        await cms_model_1.default.updateOne({ key: 'terms_condition' }, { $set: { value: terms_condition } });
-        await cms_model_1.default.updateOne({ key: 'privacy_policy' }, { $set: { value: privacy_policy } });
-        await cms_model_1.default.updateOne({ key: 'our_services' }, { $set: { value: our_services } });
-        await cms_model_1.default.updateOne({ key: 'vision' }, { $set: { value: vision } });
-        await cms_model_1.default.updateOne({ key: 'mission' }, { $set: { value: mission } });
-        await cms_model_1.default.updateOne({ key: 'brochure' }, { $set: { value: brochure } });
-        await cms_model_1.default.updateOne({ key: 'get_our_mobile_app' }, { $set: { value: get_our_mobile_app } });
-        await cms_model_1.default.updateOne({ key: 'training_matirial' }, { $set: { value: training_matirial } });
+        const { settings, info, vibration, calibration, } = req.body;
+        await cms_model_1.default.updateOne({ key: 'SETTINGS' }, { $set: { value: settings } });
+        await cms_model_1.default.updateOne({ key: 'INFO' }, { $set: { value: info } });
+        await cms_model_1.default.updateOne({ key: 'VIBRATION' }, { $set: { value: vibration } });
+        await cms_model_1.default.updateOne({ key: 'CALIBRATION' }, { $set: { value: calibration } });
         await session.commitTransaction();
         await session.endSession();
         const sendResponse = {
-            message: 'CMS' + process.env.APP_UPDATE_MESSAGE
+            message: 'CMS' + ' ' + process.env.APP_UPDATE_MESSAGE
         };
         return responseMiddleware_1.default.sendSuccess(req, res, sendResponse);
     }
@@ -66,7 +60,7 @@ const store = (async (req, res) => {
         const sendResponse = {
             message: err.message,
         };
-        logger.info('CMS' + process.env.APP_UPDATE_MESSAGE);
+        logger.info('CMS' + ' ' + process.env.APP_UPDATE_MESSAGE);
         logger.info(err);
         await session.abortTransaction();
         session.endSession();
