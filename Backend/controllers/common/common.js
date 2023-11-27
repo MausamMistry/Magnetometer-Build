@@ -1825,24 +1825,28 @@ const getRecentPost = async (req, res) => {
         return responseMiddleware_1.default.sendError(res, sendResponse);
     }
 };
-function replaceMulti(haystack, needle, replacement) {
-    return haystack.split(needle).join(replacement);
-}
+// function replaceMulti(haystack: any, needle: any, replacement: any) {
+//     return haystack.split(needle).join(replacement);
+// }
 const getCms = async (req, res) => {
     const session = await mongoose_1.default.startSession();
     session.startTransaction();
     try {
-        let slug = req.query.slug || "";
-        slug = slug.replace(/\`|\~|\!|\@|\#|\||\$|\%|\^|\&|\*|\(|\)|\+|\=|\,|\.|\/|\?|\>|\<|\'|\"|\:|\;|/gi, "");
-        slug = replaceMulti(slug, '-', '_');
-        const cmsData = await cms_model_1.default.aggregate([{ $match: { key: slug } }]);
+        // let slug: any = req.query.slug || "";
+        // slug = slug.replace(
+        //     /\`|\~|\!|\@|\#|\||\$|\%|\^|\&|\*|\(|\)|\+|\=|\,|\.|\/|\?|\>|\<|\'|\"|\:|\;|/gi,
+        //     ""
+        // );
+        // slug = replaceMulti(slug, '-', '_')
+        // const cmsData: any = await Cms.aggregate([{ $match: { key: slug } }]);
+        const cmsData = await cms_model_1.default.find({});
         await session.commitTransaction();
         await session.endSession();
         const responseData = {
             message: process.env.APP_CMS_GET,
-            data: cmsData[0],
+            data: cmsData,
         };
-        return responseMiddleware_1.default.sendSuccess(req, res, JSON.stringify(responseData));
+        return responseMiddleware_1.default.sendSuccess(req, res, responseData);
     }
     catch (err) {
         const sendResponse = {

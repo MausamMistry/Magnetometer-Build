@@ -8,8 +8,8 @@ const responseMiddleware_1 = __importDefault(require("../../helper/responseMiddl
 const log4js_1 = __importDefault(require("log4js"));
 const logger = log4js_1.default.getLogger();
 const user_model_1 = __importDefault(require("../../models/user-model"));
-const sub_admin_model_1 = __importDefault(require("../../models/sub-admin-model"));
-// import SensorModel from '../../models/sensor-model';
+const admin_model_1 = __importDefault(require("../../models/admin-model"));
+const role_model_1 = __importDefault(require("../../models/role-model"));
 const firebase_1 = require("../../helper/firebase");
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const uniqid_1 = __importDefault(require("uniqid"));
@@ -54,18 +54,15 @@ const getAll = (async (req, res) => {
     const session = await mongoose_1.default.startSession();
     session.startTransaction();
     try {
-        const userData = await sub_admin_model_1.default.aggregate([
+        const userData = await admin_model_1.default.aggregate([
             {
                 $project: {
                     "_id": 1,
                     "first_name": 1,
                     "last_name": 1,
-                    // "user_name": 1,
-                    // "type": 1,
                     "mobile_no": 1,
                     "email": 1,
                     "profile_photo": 1,
-                    // "location": 1,
                     "is_active": 1,
                 }
             },
@@ -134,7 +131,7 @@ const get = (async (req, res) => {
             // }
             console.log(filterText);
         }
-        const userData = await sub_admin_model_1.default.aggregate([
+        const userData = await admin_model_1.default.aggregate([
             // {
             //     $lookup: {
             //         from: "service_types",
@@ -176,7 +173,7 @@ const get = (async (req, res) => {
             },
         ]);
         const sendResponse = {
-            message: 'Sub-admin' + process.env.APP_GET_MESSAGE,
+            message: process.env.APP_GET_MESSAGE,
             data: userData.length > 0 ? userData[0] : {},
         };
         await session.commitTransaction();
@@ -187,7 +184,7 @@ const get = (async (req, res) => {
         const sendResponse = {
             message: err.message,
         };
-        logger.info('Sub-admin' + process.env.APP_GET_MESSAGE);
+        logger.info('admin' + process.env.APP_GET_MESSAGE);
         logger.info(err);
         await session.abortTransaction();
         session.endSession();
@@ -201,7 +198,7 @@ const destroy = (async (req, res) => {
     const session = await mongoose_1.default.startSession();
     session.startTransaction();
     try {
-        await sub_admin_model_1.default.deleteMany({ _id: req.query.id, });
+        await admin_model_1.default.deleteMany({ _id: req.query.id, });
         const responseData = {
             message: 'Sub-admin' + process.env.APP_DELETE_MESSAGE,
             data: {},
@@ -225,7 +222,7 @@ const destroy = (async (req, res) => {
 // =================================== Edit the Record Data ==================================
 // *******************************************************************************************
 const getData = (async (id) => {
-    const userData = await sub_admin_model_1.default.aggregate([
+    const userData = await admin_model_1.default.aggregate([
         { $match: { "_id": new mongoose_1.default.Types.ObjectId(id) } },
         { $project: project },
     ]);
@@ -366,39 +363,30 @@ const changeStatusEmail = (async (req, res) => {
 const store = (async (req, res) => {
     const session = await mongoose_1.default.startSession();
     session.startTransaction();
+    var roleData = await role_model_1.default.findOne({ 'name': 'admin' });
     try {
         let id = req.body.id;
-        const { first_name, last_name, 
-        // user_name,
-        mobile_no, email, profile_photo, 
-        // location,
-        // date_of_birth,
-        password,
-        // type,
-         } = req.body;
+        const { first_name, last_name, mobile_no, email, profile_photo, password, } = req.body;
         let userData = {};
         let message;
         if (id) {
-            userData = await sub_admin_model_1.default.findOne({ _id: id }); // await User.findOne({ _id: id });
-            message = 'Sub-admin update succesfully'; // 'User update succesfully';
+            userData = await admin_model_1.default.findOne({ _id: id });
+            message = 'Sub-admin update succesfully';
         }
         else {
-            userData = await new sub_admin_model_1.default(); // await new User();
-            message = 'Sub-admin added succesfully'; // 'User added succesfully';
+            userData = await new admin_model_1.default();
+            message = 'Sub-admin added succesfully';
             userData.unique_id = (0, uniqid_1.default)();
         }
         const passwordHash = await bcrypt_1.default.hash(password, Number(10));
         userData.first_name = first_name;
         userData.last_name = last_name;
-        // userData.type = type;
-        // userData.user_name = user_name;
+        userData.is_admin = roleData.guard_name;
         userData.mobile_no = mobile_no;
         userData.email = email;
         userData.password = passwordHash;
         userData.profile_photo = profile_photo;
-        userData.role_id = "655f27ae004a47ef16f2770c";
-        // userData.location = location;
-        // userData.date_of_birth = date_of_birth;
+        userData.role_id = roleData._id;
         await userData.save();
         await session.commitTransaction();
         await session.endSession();
@@ -416,7 +404,6 @@ const store = (async (req, res) => {
         logger.info(err);
         await session.abortTransaction();
         session.endSession();
-        console.log("sendResponse", sendResponse);
         return responseMiddleware_1.default.sendError(res, sendResponse);
     }
 });
