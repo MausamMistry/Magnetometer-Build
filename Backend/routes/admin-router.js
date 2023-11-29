@@ -190,8 +190,9 @@ adminRouter.post("/visit-site/store", visitSite_validation_1.default.store, visi
 adminRouter.get("/visit-site/edit-get", common_validation_1.default.idRequiredQuery, visitSite_1.default.edit);
 adminRouter.delete("/visit-site/delete", common_validation_1.default.idRequiredQuery, visitSite_1.default.destroy);
 adminRouter.post("/visit-site/change-status", common_validation_1.default.idRequired, visitSite_1.default.changeStatus);
-// user 
+// user
 adminRouter.post("/user/changeUserPassword", user_validation_1.default.changePasswordValidation, user_2.default.changeUserPassword);
+adminRouter.post("/user/notification", user_2.default.sendNotification);
 // *******************************************************************************************
 // ================================== End user Route =========================================
 // *******************************************************************************************

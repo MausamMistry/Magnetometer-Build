@@ -53,6 +53,6 @@ noAuthRouter.post("/check-field", common_validation_1.default.fieldExistValidati
 noAuthRouter.get("/training-material/get", trainingMaterial_1.default.get);
 // sensor api
 noAuthRouter.post('/add-sensor-data', sensor_1.default.store);
-noAuthRouter.get('/get-sensor', sensor_1.default.getSensorData);
+noAuthRouter.post('/get-sensor', sensor_1.default.getSensorData);
 // Export default
 exports.default = noAuthRouter;
