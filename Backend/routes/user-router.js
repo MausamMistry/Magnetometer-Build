@@ -74,7 +74,7 @@ customerRouter.post("/card", card_validation_1.default.store, paymentMethods_1.d
 customerRouter.get("/cards", paymentMethods_1.default.getAll);
 customerRouter.get("/get-card-by-id", common_validation_1.default.idRequiredQuery, paymentMethods_1.default.getCard);
 customerRouter.delete("/card/delete", common_validation_1.default.idRequiredQuery, paymentMethods_1.default.destroy);
-//service Type
+// service Type
 //myAssets Management
 customerRouter.post("/my-assets", myAssets_validation_1.default.store, myAssets_1.default.store);
 customerRouter.get("/my-assets-get", myAssets_1.default.get);
