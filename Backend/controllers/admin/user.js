@@ -412,12 +412,12 @@ const changeUserPassword = async (req, res) => {
         const { user_id, password, updated_by } = req.body;
         // @ts-ignore
         // const user_id = req?.customer?._id;
-        const userData = await user_model_1.default.findOne({
+        const userData = await admin_model_1.default.findOne({
             _id: new mongoose_1.default.Types.ObjectId(user_id),
         });
         if (userData) {
             const passwordhash = await bcrypt_1.default.hash(password, Number(10));
-            await user_model_1.default.findByIdAndUpdate(new mongoose_1.default.Types.ObjectId(user_id), {
+            await admin_model_1.default.findByIdAndUpdate(new mongoose_1.default.Types.ObjectId(user_id), {
                 password: passwordhash,
                 updated_by: updated_by,
             }, {
@@ -430,7 +430,7 @@ const changeUserPassword = async (req, res) => {
         }
         else {
             const sendResponse = {
-                message: process.env.APP_EMAIL_PASSWROD_INCORRECT_MESSAGE,
+                message: process.env.APP_ADMIN_NOT_FOUND_MESSAGE,
             };
             return responseMiddleware_1.default.sendError(res, sendResponse);
         }
