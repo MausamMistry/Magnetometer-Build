@@ -52,6 +52,7 @@ const earning_1 = __importDefault(require("../controllers/admin/earning"));
 const myServices_1 = __importDefault(require("../controllers/admin/myServices"));
 const whyMaintenance_1 = __importDefault(require("../controllers/admin/whyMaintenance"));
 const whyMaintenance_validation_1 = __importDefault(require("../validation/admin/whyMaintenance-validation"));
+const sensor_1 = __importDefault(require("../controllers/user/sensor"));
 // Constants
 const adminRouter = (0, express_1.Router)();
 adminRouter.use(decryptData_1.default.DecryptedData);
@@ -292,5 +293,7 @@ adminRouter.get("/payment-transaction", paymentTransaction_1.default.get);
 // my earning
 adminRouter.get("/my-earning/get", earning_1.default.get);
 adminRouter.get("/my-services/get", myServices_1.default.get);
+// sensor data get
+adminRouter.get("/location", sensor_1.default.get);
 // Export default
 exports.default = adminRouter;
