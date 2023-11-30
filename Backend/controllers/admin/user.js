@@ -234,7 +234,7 @@ const edit = (async (req, res) => {
     try {
         let id = req.query.id;
         const responseData = {
-            message: 'User' + process.env.APP_EDIT_GET_MESSAGE,
+            message: 'User' + ' ' + process.env.APP_EDIT_GET_MESSAGE,
             data: await getData(id),
         };
         await session.commitTransaction();
@@ -245,7 +245,7 @@ const edit = (async (req, res) => {
         const sendResponse = {
             message: err.message,
         };
-        logger.info('User' + process.env.APP_EDIT_GET_MESSAGE);
+        logger.info('User' + ' ' + process.env.APP_EDIT_GET_MESSAGE);
         logger.info(err);
         await session.abortTransaction();
         session.endSession();

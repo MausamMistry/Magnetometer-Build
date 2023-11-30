@@ -102,10 +102,13 @@ const getSensorData = async (req, res) => {
     const session = await mongoose_1.default.startSession();
     session.startTransaction();
     try {
-        const { devicetoken, address } = req.body;
+        const { devicetoken } = req.body;
         const matchStage = {
-            $match: { $or: [{ devicetoken: devicetoken }, { address: address }] }
+            $match: { devicetoken: devicetoken }
         };
+        // const matchStage = {
+        //     $match: { $or: [{ devicetoken: devicetoken }, { address: address }] }
+        // };
         const pipeline = [
             matchStage
         ];
