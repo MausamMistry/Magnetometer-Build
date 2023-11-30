@@ -6,7 +6,8 @@ const schema = new mongoose_1.Schema({
     sensordata: { type: mongoose_1.Schema.Types.Mixed },
     devicetoken: { type: String },
     address: { type: String },
-    updated_by: { type: String }
+    updated_by: { type: String },
+    day: { type: Number }
 }, {
     timestamps: true,
 });
