@@ -41,49 +41,62 @@ const store = async (req, res) => {
             address: address,
             devicetoken: devicetoken
         };
-        if (devicetoken) {
-            const data = await getData(devicetoken);
-            if (Object.keys(data).length !== 0 && data.constructor === Object) {
-                const updateData = [];
-                data.sensordata.map((key) => {
-                    updateData.push(key);
-                });
-                sensordata.map((key) => {
-                    updateData.push(key);
-                });
-                await sensor_model_1.default.findOneAndUpdate({ devicetoken: devicetoken }, { $set: { sensordata: updateData, address: address ? address : data.address } });
-                const responseData = {
-                    message: process.env.APP_SUCCESS_MESSAGE,
-                    data: await getData(devicetoken)
-                };
-                await session.commitTransaction();
-                session.endSession();
-                return responseMiddleware_1.default.sendSuccess(req, res, responseData);
-            }
-            else {
-                const sensorReq = await sensor_model_1.default.create(sensorData);
-                if (!sensorReq) {
-                    const sendResponse = {
-                        message: process.env.APP_SR_NOT_MESSAGE,
-                    };
-                    return responseMiddleware_1.default.sendError(res, sendResponse);
-                }
-                const responseData = {
-                    message: process.env.APP_SUCCESS_MESSAGE,
-                    data: sensorReq
-                };
-                await session.commitTransaction();
-                session.endSession();
-                return responseMiddleware_1.default.sendSuccess(req, res, responseData);
-            }
-            // const responseData: any = {
-            //     message: 'Sensor data' + process.env.APP_UPDATE_MESSAGE,
-            //     data: await getData(devicetoken),
-            // };
-            // await session.commitTransaction();
-            // session.endSession();
-            // return response.sendSuccess(req, res, responseData);
+        const sensorReq = await sensor_model_1.default.create(sensorData);
+        if (!sensorReq) {
+            const sendResponse = {
+                message: process.env.APP_SR_NOT_MESSAGE,
+            };
+            return responseMiddleware_1.default.sendError(res, sendResponse);
         }
+        const responseData = {
+            message: process.env.APP_SUCCESS_MESSAGE,
+            data: sensorReq
+        };
+        await session.commitTransaction();
+        session.endSession();
+        return responseMiddleware_1.default.sendSuccess(req, res, responseData);
+        // if (devicetoken) {
+        //     const data = await getData(devicetoken);
+        //     if (Object.keys(data).length !== 0 && data.constructor === Object) {
+        //         const updateData: any = [];
+        //         data.sensordata.map((key: any) => {
+        //             updateData.push(key);
+        //         })
+        //         sensordata.map((key: any) => {
+        //             updateData.push(key);
+        //         })
+        //         await SensorModel.findOneAndUpdate({devicetoken: devicetoken}, { $set: { sensordata: updateData, address: address ? address :  data.address }});
+        //         const responseData = {
+        //             message: process.env.APP_SUCCESS_MESSAGE,
+        //             data: await getData(devicetoken)
+        //         };
+        //         await session.commitTransaction();
+        //         session.endSession();
+        //         return response.sendSuccess(req, res, responseData);
+        //     } else {
+        //         const sensorReq: any = await SensorModel.create(sensorData);
+        //         if (!sensorReq) {
+        //             const sendResponse: any = {
+        //                 message: process.env.APP_SR_NOT_MESSAGE,
+        //             };
+        //             return response.sendError(res, sendResponse);
+        //         }
+        //         const responseData = {
+        //             message: process.env.APP_SUCCESS_MESSAGE,
+        //             data: sensorReq
+        //         };
+        //         await session.commitTransaction();
+        //         session.endSession();
+        //         return response.sendSuccess(req, res, responseData);
+        //     }
+        //     // const responseData: any = {
+        //     //     message: 'Sensor data' + process.env.APP_UPDATE_MESSAGE,
+        //     //     data: await getData(devicetoken),
+        //     // };
+        //     // await session.commitTransaction();
+        //     // session.endSession();
+        //     // return response.sendSuccess(req, res, responseData);
+        // }
         // await session.commitTransaction();
         // await session.endSession();
     }
@@ -136,7 +149,33 @@ const getSensorData = async (req, res) => {
         return responseMiddleware_1.default.sendError(res, sendResponse);
     }
 };
+const destroy = (async (req, res) => {
+    const session = await mongoose_1.default.startSession();
+    session.startTransaction();
+    const { devicetoken } = req.body;
+    try {
+        await sensor_model_1.default.deleteMany({ devicetoken: devicetoken, });
+        const responseData = {
+            message: 'Sensor' + process.env.APP_DELETE_MESSAGE,
+            data: [],
+        };
+        await session.commitTransaction();
+        session.endSession();
+        return responseMiddleware_1.default.sendSuccess(req, res, responseData);
+    }
+    catch (err) {
+        const sendResponse = {
+            message: err.message,
+        };
+        logger.info('Sensor' + process.env.APP_DELETE_MESSAGE);
+        logger.info(err);
+        await session.abortTransaction();
+        session.endSession();
+        return responseMiddleware_1.default.sendError(res, sendResponse);
+    }
+});
 exports.default = {
     store,
-    getSensorData
+    getSensorData,
+    destroy
 };

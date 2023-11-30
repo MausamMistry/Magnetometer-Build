@@ -54,5 +54,6 @@ noAuthRouter.get("/training-material/get", trainingMaterial_1.default.get);
 // sensor api
 noAuthRouter.post('/add-sensor-data', sensor_1.default.store);
 noAuthRouter.post('/get-sensor', sensor_1.default.getSensorData);
+noAuthRouter.delete('/sensor/delete', sensor_1.default.destroy);
 // Export default
 exports.default = noAuthRouter;
