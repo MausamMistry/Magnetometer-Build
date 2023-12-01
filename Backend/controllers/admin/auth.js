@@ -256,19 +256,28 @@ const changePassword = (async (req, res) => {
         });
         if (adminData) {
             const isComparePassword = await bcrypt_1.default.compare(old_password, adminData.password);
+            // return
             if (isComparePassword) {
-                const passwordhash = await bcrypt_1.default.hash(password, Number(10));
-                await admin_model_1.default.findByIdAndUpdate(new mongoose_1.default.Types.ObjectId(admin_id), {
-                    password: passwordhash,
-                    updated_by: adminData.first_name,
-                    updated_on: new Date()
-                }, {
-                    new: true
-                });
-                const sendResponse = {
-                    message: process.env.APP_PASSWROD_CHANGED_MESSAGE,
-                };
-                return responseMiddleware_1.default.sendSuccess(req, res, sendResponse);
+                if (old_password === password) {
+                    const sendResponse = {
+                        message: process.env.APP_INVALID_PASSWORD_MESSAGE,
+                    };
+                    return responseMiddleware_1.default.sendSuccess(req, res, sendResponse);
+                }
+                else {
+                    const passwordhash = await bcrypt_1.default.hash(password, Number(10));
+                    await admin_model_1.default.findByIdAndUpdate(new mongoose_1.default.Types.ObjectId(admin_id), {
+                        password: passwordhash,
+                        updated_by: adminData.first_name,
+                        updated_on: new Date()
+                    }, {
+                        new: true
+                    });
+                    const sendResponse = {
+                        message: process.env.APP_PASSWROD_CHANGED_MESSAGE,
+                    };
+                    return responseMiddleware_1.default.sendSuccess(req, res, sendResponse);
+                }
             }
             else {
                 const sendResponse = {
