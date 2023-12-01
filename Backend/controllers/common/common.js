@@ -1843,7 +1843,7 @@ const getCms = async (req, res) => {
         await session.commitTransaction();
         await session.endSession();
         const responseData = {
-            message: process.env.APP_CMS_GET,
+            message: 'Cms' + ' ' + process.env.APP_GET_MESSAGE,
             data: cmsData,
         };
         return responseMiddleware_1.default.sendSuccess(req, res, responseData);

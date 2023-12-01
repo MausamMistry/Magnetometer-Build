@@ -244,8 +244,8 @@ adminRouter.post("/our-contact-us/store", ourContactUs_validation_1.default.stor
 // *******************************************************************************************
 // ================================== Start cms Route =======================================
 // *******************************************************************************************
-adminRouter.get("/cms/get", cms_1.default.get);
-adminRouter.post("/cms/store", cms_validation_1.default.store, cms_1.default.store);
+// adminRouter.get("/cms/get", cmsService.get);
+// adminRouter.post("/cms/store", cmsValidation.store, cmsService.store);
 // *******************************************************************************************
 // ================================== End cms Route =========================================
 // *******************************************************************************************

@@ -34,8 +34,7 @@ const sendValidationError = (async (res, error) => {
 });
 const sendSuccess = (async (req, res, data) => {
     let dataResponse = {
-        "code": 200,
-        "status": "success",
+        "status": 200,
         "message": data.message,
         "data": data.data
     };
@@ -44,8 +43,7 @@ const sendSuccess = (async (req, res, data) => {
 });
 const sendResponse = (async (res, data) => {
     let dataResponse = {
-        "code": 200,
-        "status": "success",
+        "status": 200,
         "message": data.message,
         "data": data.data
     };

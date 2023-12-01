@@ -23,25 +23,11 @@ const allFiled = [
     "_id",
     "first_name",
     "last_name",
-    // "user_name",
     "mobile_no",
     "email",
-    // "type",
-    // "profile_photo",
-    // "location",
-    // "date_of_birth",
-    // "password",
+    "is_admin",
     "unique_id",
-    "is_active",
-    // "email_is_active",
-    // "firebase_is_active",
-    // "current_commission",
-    // "commission_sing",
-    // "createdAt",
-    // "company_name",
-    // "upload_brochure",
-    // "serviceTypeData._id",
-    // "serviceTypeData.name",
+    "is_active"
 ];
 let project = {};
 const getAllFiled = async () => {
@@ -181,7 +167,7 @@ const destroy = (async (req, res) => {
     try {
         await admin_model_1.default.deleteMany({ _id: req.query.id, });
         const responseData = {
-            message: 'Sub-admin' + process.env.APP_DELETE_MESSAGE,
+            message: 'Sub-admin' + ' ' + process.env.APP_DELETE_MESSAGE,
             data: {},
         };
         await session.commitTransaction();
@@ -233,21 +219,6 @@ const edit = (async (req, res) => {
         return responseMiddleware_1.default.sendError(res, sendResponse);
     }
 });
-// const getSensorData = (async (token: string) => {
-//     const project = {
-//         $project: {
-//             "_id": 1,
-//             "sensordata": 1,
-//             "devicetoken": 1,
-//             "is_active": 1,
-//         }
-//     };
-//     const userData: any = await SensorModel.aggregate([
-//         { $match: { "devicetoken": (token) } }, // { "_id": new mongoose.Types.ObjectId(id) }
-//         { $project: project },
-//     ]);
-//     return userData.length > 0 ? userData[0] : {};
-// });
 // *******************************************************************************************
 // ================================= Change Status of Record =================================
 // *******************************************************************************************
@@ -346,13 +317,18 @@ const store = (async (req, res) => {
     session.startTransaction();
     var roleData = await role_model_1.default.findOne({ 'name': 'admin' });
     try {
-        let id = req.body.id;
-        const { first_name, last_name, mobile_no, email, profile_photo, password, } = req.body;
+        // let id: number = req.body.id;
+        const { first_name, last_name, mobile_no, email, profile_photo, password } = req.body;
         let userData = {};
         let message;
-        if (id) {
-            userData = await admin_model_1.default.findOne({ _id: id });
-            message = 'Sub-admin update succesfully';
+        userData = await admin_model_1.default.findOne({ email: email });
+        if (userData) {
+            message = 'User Already exists!';
+            const responseData = {
+                message: message,
+                data: null,
+            };
+            return responseMiddleware_1.default.sendSuccess(req, res, responseData);
         }
         else {
             userData = await new admin_model_1.default();
@@ -362,7 +338,7 @@ const store = (async (req, res) => {
         const passwordHash = await bcrypt_1.default.hash(password, Number(10));
         userData.first_name = first_name;
         userData.last_name = last_name;
-        userData.is_admin = roleData.guard_name;
+        userData.is_admin = "sub-admin";
         userData.mobile_no = mobile_no;
         userData.email = email;
         userData.password = passwordHash;

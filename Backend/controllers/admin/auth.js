@@ -183,7 +183,7 @@ const dashboard = (async (req, res) => {
     }
 });
 const adminsDataGet = (async (id) => {
-    const adminData = await admin_model_1.default.findById(id).select("_id first_name last_name email role_id profile_photo");
+    const adminData = await admin_model_1.default.findById(id).select("_id first_name last_name email role_id profile_photo is_admin");
     return adminData;
 });
 const login = (async (req, res) => {
@@ -225,6 +225,7 @@ const login = (async (req, res) => {
                 AdminsData['access_token'] = token;
                 const sendResponse = {
                     data: AdminsData ? AdminsData : {},
+                    status: 200,
                     message: process.env.APP_LOGGED_MESSAGE,
                 };
                 return responseMiddleware_1.default.sendSuccess(req, res, sendResponse);

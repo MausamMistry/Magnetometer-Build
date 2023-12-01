@@ -15,6 +15,7 @@ const cms_model_1 = __importDefault(require("../../models/cms-model"));
 // =========================== Get Data With Pagination And Filter ===========================
 // *******************************************************************************************
 const get = (async (req, res) => {
+    console.log("process.env.APP_GET_MESSAGE", process.env.APP_GET_MESSAGE);
     try {
         const data = await cms_model_1.default.find();
         let fees_map = {};
@@ -22,13 +23,15 @@ const get = (async (req, res) => {
             values.key, values.value
         ]));
         let feesMapArray = await Object.fromEntries(fees_map.entries());
+        console.log("process.env.APP_GET_MESSAGE", process.env.APP_GET_MESSAGE);
         const sendResponse = {
             data: feesMapArray ? feesMapArray : {},
-            message: 'CMS' + process.env.APP_GET_MESSAGE,
+            message: 'CMS' + ' ' + process.env.APP_GET_MESSAGE,
         };
         return responseMiddleware_1.default.sendSuccess(req, res, sendResponse);
     }
     catch (err) {
+        console.log("process.env.APP_GET_MESSAGE", process.env.APP_GET_MESSAGE);
         const sendResponse = {
             message: err.message,
         };
@@ -49,11 +52,12 @@ const store = (async (req, res) => {
         await cms_model_1.default.updateOne({ key: 'INFO' }, { $set: { value: info } });
         await cms_model_1.default.updateOne({ key: 'VIBRATION' }, { $set: { value: vibration } });
         await cms_model_1.default.updateOne({ key: 'CALIBRATION' }, { $set: { value: calibration } });
-        await session.commitTransaction();
-        await session.endSession();
         const sendResponse = {
+            status: 200,
             message: 'CMS' + ' ' + process.env.APP_UPDATE_MESSAGE
         };
+        await session.commitTransaction();
+        await session.endSession();
         return responseMiddleware_1.default.sendSuccess(req, res, sendResponse);
     }
     catch (err) {
