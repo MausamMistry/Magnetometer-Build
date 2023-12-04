@@ -321,9 +321,12 @@ const store = (async (req, res) => {
         const { first_name, last_name, mobile_no, email, profile_photo, password } = req.body;
         let userData = {};
         let message;
-        userData = await admin_model_1.default.findOne({ email: email });
+        const query = {
+            $or: [{ email: email }, { mobile_no: mobile_no }]
+        };
+        userData = await admin_model_1.default.findOne(query);
         if (userData) {
-            message = 'User Already exists!';
+            message = 'User Already exists, use different email and moble no';
             const responseData = {
                 message: message,
                 data: null,
