@@ -203,7 +203,7 @@ const login = (async (req, res) => {
             const ispasswordmatch = await bcrypt_1.default.compare(password, adminData.password);
             if (!ispasswordmatch) {
                 const sendResponse = {
-                    message: process.env.APP_INVALID_PASSWORD_MESSAGE,
+                    message: process.env.APP_INVALID_PASSWORD,
                 };
                 return responseMiddleware_1.default.sendError(res, sendResponse);
             }
