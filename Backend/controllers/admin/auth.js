@@ -330,12 +330,38 @@ const updateProfile = (async (req, res) => {
         // @ts-ignore
         const admin_id = req?.admin?._id;
         await admin_model_1.default.findByIdAndUpdate(admin_id, {
-            profile_photo: profile_photo,
+            profile_photo: req.files,
             first_name: first_name,
             last_name: last_name,
             email: email,
             mobile_no: mobile_no
         });
+        const adminData = await admin_model_1.default.findOne({
+            _id: new mongoose_1.default.Types.ObjectId(admin_id)
+        });
+        const sendResponse = {
+            data: adminData,
+            message: process.env.APP_PROFILE_UPDATE_MESSAGE,
+        };
+        return responseMiddleware_1.default.sendSuccess(req, res, sendResponse);
+    }
+    catch (err) {
+        const sendResponse = {
+            message: err.message,
+        };
+        logger.info(process.env.APP_PROFILE_UPDATE_MESSAGE);
+        logger.info(err);
+        return responseMiddleware_1.default.sendError(res, sendResponse);
+    }
+});
+const updateImage = (async (req, res) => {
+    try {
+        // @ts-ignore
+        const admin_id = req?.admin?._id;
+        if (req.file) {
+            req.file.path = 'http://103.154.184.187:5006/' + req.file.path;
+        }
+        await admin_model_1.default.updateOne({ _id: new mongoose_1.default.Types.ObjectId(admin_id) }, { $set: { profile_photo: req.file } });
         const adminData = await admin_model_1.default.findOne({
             _id: new mongoose_1.default.Types.ObjectId(admin_id)
         });
@@ -389,7 +415,6 @@ const logout = (async (req, res) => {
     }
 });
 const forgetPassword = async (req, res) => {
-    console.log("hello world forget password >>>>>>>>>>>>>>>>>");
     try {
         const { email } = req.body;
         const admin = await admin_model_1.default.findOne({ email: email });
@@ -494,6 +519,7 @@ exports.default = {
     getProfile,
     dashboard,
     updateProfile,
+    updateImage,
     forgetPassword,
     resetPassword,
     logout

@@ -53,6 +53,18 @@ const myServices_1 = __importDefault(require("../controllers/admin/myServices"))
 const whyMaintenance_1 = __importDefault(require("../controllers/admin/whyMaintenance"));
 const whyMaintenance_validation_1 = __importDefault(require("../validation/admin/whyMaintenance-validation"));
 const sensor_1 = __importDefault(require("../controllers/user/sensor"));
+const multer_1 = __importDefault(require("multer"));
+const path_1 = __importDefault(require("path"));
+const storage = multer_1.default.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'uploads'); // Destination folder for uploaded files
+    },
+    filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, file.fieldname + '-' + uniqueSuffix + path_1.default.extname(file.originalname));
+    },
+});
+const upload = (0, multer_1.default)({ storage: storage });
 // Constants
 const adminRouter = (0, express_1.Router)();
 adminRouter.use(decryptData_1.default.DecryptedData);
@@ -60,8 +72,9 @@ adminRouter.use(admin_guard_1.authAdmin);
 adminRouter.get("/dashboard", auth_1.default.dashboard);
 adminRouter.post("/change-password", auth_1.default.changePassword);
 adminRouter.post("/logout", auth_1.default.logout);
-adminRouter.post("/profile-update", auth_1.default.updateProfile);
+adminRouter.post("/profile-update", upload.single("file"), auth_1.default.updateProfile);
 adminRouter.get("/profile", auth_1.default.getProfile);
+adminRouter.post('/imageupload', upload.single("file"), auth_1.default.updateImage);
 // *******************************************************************************************
 // ================================== Start Setting  Route =======================================
 // *******************************************************************************************
