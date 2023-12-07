@@ -72,9 +72,8 @@ adminRouter.use(admin_guard_1.authAdmin);
 adminRouter.get("/dashboard", auth_1.default.dashboard);
 adminRouter.post("/change-password", auth_1.default.changePassword);
 adminRouter.post("/logout", auth_1.default.logout);
-adminRouter.post("/profile-update", upload.single("file"), auth_1.default.updateProfile);
+adminRouter.post("/profile-update", auth_1.default.updateProfile);
 adminRouter.get("/profile", auth_1.default.getProfile);
-adminRouter.post('/imageupload', upload.single("file"), auth_1.default.updateImage);
 // *******************************************************************************************
 // ================================== Start Setting  Route =======================================
 // *******************************************************************************************

@@ -159,68 +159,14 @@ const uploadVideo = async (req, res) => {
 const uploadImage = async (req, res) => {
     try {
         const imagePath = req.files[0].path;
-        console.log(req.files);
-        console.log("req.files/////////////////////////////////////////////////////////");
-        console.log(imagePath);
-        const type = req.query.type;
         const blob = fs_1.default.readFileSync(imagePath);
-        const originalFile = req.files[0].originalname;
         if (imagePath && blob) {
-            let imageName = "admin/" + Date.now() + originalFile;
-            if (Number(type) === 1) {
-                imageName = "admin/" + Date.now() + originalFile;
+            if (req.files[0]) {
+                req.files[0].path = 'http://103.154.184.187:5006/' + req.files[0].path;
             }
-            if (Number(type) === 2) {
-                imageName = "chat/" + Date.now() + originalFile;
-            }
-            if (Number(type) === 3) {
-                imageName = "customer/" + Date.now() + originalFile;
-            }
-            if (Number(type) === 4) {
-                imageName = "vendor/" + Date.now() + originalFile;
-            }
-            if (Number(type) === 5) {
-                imageName = "contact_us/" + Date.now() + originalFile;
-            }
-            if (Number(type) === 6) {
-                imageName = "service_request/" + Date.now() + originalFile;
-            }
-            if (Number(type) === 7) {
-                imageName = "bid_signature/" + Date.now() + originalFile;
-            }
-            if (Number(type) === 11) {
-                imageName = "bid_photo/" + Date.now() + originalFile;
-            }
-            if (Number(type) === 8) {
-                imageName = "our_services/" + Date.now() + originalFile;
-            }
-            if (Number(type) === 9) {
-                imageName = "social_icon/" + Date.now() + originalFile;
-            }
-            if (Number(type) === 10) {
-                imageName = "dispute/" + Date.now() + originalFile;
-            }
-            if (Number(type) === 11) {
-                imageName = "accomplishment_report/" + Date.now() + originalFile;
-            }
-            if (Number(type) === 12) {
-                imageName = "service_type/" + Date.now() + originalFile;
-            }
-            if (Number(type) === 13) {
-                imageName = "why_maintenance_master/" + Date.now() + originalFile;
-            }
-            if (Number(type) === 14) {
-                imageName = "training_material/" + Date.now() + originalFile;
-            }
-            // let comparessedImageData: any = await reSizeImage(blob, 400, 400);
-            // if (Number(type) === 7 || Number(type) === 2) {
-            let comparessedImageData = await (0, sizeImage_1.nonReSizeImage)(blob);
-            // }
-            const uploadedImageData = await aws_1.default.uploadImageToS3(imageName, comparessedImageData);
-            fs_1.default.unlinkSync(req.files[0].path);
             const responseData = {
                 data: {
-                    image_url: uploadedImageData.Location,
+                    image_url: "http://103.154.184.187:5006/" + imagePath
                 },
                 message: process.env.APP_UPLOAD_FILE_MESSAGE,
             };

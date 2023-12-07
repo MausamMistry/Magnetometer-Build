@@ -9,8 +9,7 @@ const schema = new mongoose_1.Schema({
     profile_photo: { type: Object },
     is_admin: { type: String },
     role_id: { type: mongoose_1.Schema.Types.Mixed, required: true },
-    is_active: { type: Boolean, default: false },
-    is_block: { type: Boolean, default: false },
+    is_active: { type: String, default: 'false' },
     mobile_no: { type: String },
     updated_by: { type: String }
 }, {
