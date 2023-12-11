@@ -325,7 +325,12 @@ const store = (async (req, res) => {
         };
         userData = await admin_model_1.default.findOne(query);
         if (userData) {
-            message = 'User Already exists, use different email and moble no';
+            if (userData.email === email) {
+                message = `User Already exists, with this email address, use different email!`;
+            }
+            if (userData.mobile_no === mobile_no) {
+                message = `User Already exists, with this mobie no, use different mobile no!`;
+            }
             const responseData = {
                 message: message,
                 data: null,
