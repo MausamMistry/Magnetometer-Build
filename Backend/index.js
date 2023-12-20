@@ -13,6 +13,7 @@ const log4js = require("log4js");
 const mongoose = require("mongoose");
 const index_1 = __importDefault(require("./routes/index"));
 const cron_1 = __importDefault(require("./controllers/common/cron"));
+const sensor_1 = __importDefault(require("./controllers/user/sensor"));
 const morgan = require("morgan");
 // config();
 var port = process.env.PORT;
@@ -74,26 +75,27 @@ cron.schedule("0 0 */3 * *", async () => {
     await cron_1.default.removeLogger();
 });
 // daily data base backup and send email
-cron.schedule("15 0 * * *", async () => {
-    await cron_1.default.databaseBackup();
-    await cron_1.default.autoCancelledAfter12Month();
-    await cron_1.default.serviceAutoCancelAfter30Day();
-});
+// cron.schedule("15 0 * * *", async () => {
+//     await cronService.databaseBackup();
+//     await cronService.autoCancelledAfter12Month();
+//     await cronService.serviceAutoCancelAfter30Day();
+// });
 // cron.schedule("* * * * *", async () => {
 //     // all monite after delete this 
 //     await cronService.autoCancelledAfter12Month();
 // });
 // Cron job every night at midnight is a commonly used cron schedule.
-cron.schedule("0 0 * * *", async () => {
-    await cron_1.default.serviceAutoClose();
-    await cron_1.default.destroyToken(); // remove auto token 
-    console.log("Database device token  delete ");
-    console.log("Cron job every night at midnight is a commonly used cron schedule.  ");
-});
-// cron.schedule("* * * * *", async () => {
-//     await cronService.serviceAutoCancelAfter30Day();
-//     console.log('cronjob')
+// cron.schedule("0 0 * * *", async () => {
+//     await cronService.serviceAutoClose();
+//     await cronService.destroyToken(); // remove auto token 
+//     console.log("Database device token  delete ");
+//     console.log("Cron job every night at midnight is a commonly used cron schedule.  ");
 // });
+cron.schedule('0 0 * * SUN', async () => {
+    // await cronService.serviceAutoCancelAfter30Day();
+    await sensor_1.default.deleteSensorDataPassedDays();
+    console.log('cronjob');
+});
 // cron.schedule("* * * * * *", async () => {
 //     await cronService.randomDataUpdate();
 // // update data here

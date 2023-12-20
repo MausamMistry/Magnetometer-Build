@@ -53,18 +53,6 @@ const myServices_1 = __importDefault(require("../controllers/admin/myServices"))
 const whyMaintenance_1 = __importDefault(require("../controllers/admin/whyMaintenance"));
 const whyMaintenance_validation_1 = __importDefault(require("../validation/admin/whyMaintenance-validation"));
 const sensor_1 = __importDefault(require("../controllers/user/sensor"));
-const multer_1 = __importDefault(require("multer"));
-const path_1 = __importDefault(require("path"));
-const storage = multer_1.default.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, 'uploads'); // Destination folder for uploaded files
-    },
-    filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, file.fieldname + '-' + uniqueSuffix + path_1.default.extname(file.originalname));
-    },
-});
-const upload = (0, multer_1.default)({ storage: storage });
 // Constants
 const adminRouter = (0, express_1.Router)();
 adminRouter.use(decryptData_1.default.DecryptedData);

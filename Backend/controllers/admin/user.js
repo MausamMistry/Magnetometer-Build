@@ -13,6 +13,7 @@ const role_model_1 = __importDefault(require("../../models/role-model"));
 const firebase_1 = require("../../helper/firebase");
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const uniqid_1 = __importDefault(require("uniqid"));
+const sensor_model_1 = __importDefault(require("../../models/sensor-model"));
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // ============================================= Over Here Include Library =============================================
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -29,10 +30,21 @@ const allFiled = [
     "unique_id",
     "is_active"
 ];
+const allSensorFiled = [
+    "_id",
+    "sensordata",
+    "devicetoken",
+    "address",
+    "day"
+];
 let project = {};
+let projectSensor = {};
 const getAllFiled = async () => {
     await allFiled.map(function async(item) {
         project[item] = 1;
+    });
+    await allSensorFiled.map(function async(item) {
+        projectSensor[item] = 1;
     });
 };
 getAllFiled();
@@ -468,11 +480,30 @@ const sendNotification = (async (req, res) => {
     const session = await mongoose_1.default.startSession();
     session.startTransaction();
     try {
-        const token = req.body.token;
-        const notification = await (0, firebase_1.sendPushNotification)(token, {});
+        const token = [];
+        const { location, title, notification_body } = req.body;
+        const obj = {
+            title: title,
+            notification_body: notification_body,
+        };
+        let sensorData = await sensor_model_1.default.aggregate([
+            { $match: { "_id": new mongoose_1.default.Types.ObjectId(location) } },
+            { $project: projectSensor },
+        ]).exec();
+        sensorData = JSON.parse(JSON.stringify(sensorData));
+        if (sensorData[0]) {
+            token.push(sensorData[0].devicetoken);
+        }
+        else {
+            const responseData = {
+                message: "Data not Found.",
+            };
+            return await responseMiddleware_1.default.sendError(res, responseData);
+        }
+        await (0, firebase_1.sendPushNotification)(token, obj);
         const sendResponse = {
-            message: 'User' + process.env.APP_GET_MESSAGE,
-            data: "" //data.length > 0 ? data : {},
+            message: 'Notification sent to user',
+            data: {}
         };
         await session.commitTransaction();
         session.endSession();
