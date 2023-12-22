@@ -146,7 +146,7 @@ const get = (async (req, res) => {
                 }
             },
             { $project: project },
-            { $match: { $and: [filterText, { address: { $ne: 'Address not found' } }] } },
+            { $match: filterText },
             { $sort: orders },
             {
                 $facet: {
