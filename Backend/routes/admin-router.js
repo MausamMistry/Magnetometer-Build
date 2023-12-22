@@ -295,5 +295,6 @@ adminRouter.get("/my-earning/get", earning_1.default.get);
 adminRouter.get("/my-services/get", myServices_1.default.get);
 // sensor data get
 adminRouter.get("/location", sensor_1.default.get);
+adminRouter.get("/sensordata", sensor_1.default.getWithPagination);
 // Export default
 exports.default = adminRouter;

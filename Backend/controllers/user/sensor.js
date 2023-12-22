@@ -154,20 +154,92 @@ const get = (async (req, res) => {
                     docs: [{ $addFields: { _id: '$_id' } }],
                 },
             },
+            { $unwind: '$total' }
+        ]);
+        const sendResponse = {
+            message: process.env.APP_GET_MESSAGE,
+            data: sensorData.length > 0 ? sensorData[0] : {},
+        };
+        await session.commitTransaction();
+        session.endSession();
+        return responseMiddleware_1.default.sendSuccess(req, res, sendResponse);
+    }
+    catch (err) {
+        const sendResponse = {
+            message: err.message,
+        };
+        logger.info('Sensor' + ' ' + process.env.APP_GET_MESSAGE);
+        logger.info(err);
+        await session.abortTransaction();
+        session.endSession();
+        return responseMiddleware_1.default.sendError(res, sendResponse);
+    }
+});
+const getWithPagination = (async (req, res) => {
+    const session = await mongoose_1.default.startSession();
+    session.startTransaction();
+    try {
+        const { per_page, page, sort_field, sort_direction, type } = req.query;
+        let filterText = {
+            type: type,
+        };
+        let filter = req.query.search;
+        filter = filter ? filter.replace(" 91", "") : "";
+        filter = filter ? filter.replace("%", "") : "";
+        let filterTextValue = filter;
+        let orders = {};
+        let pageFind = page ? (Number(page) - 1) : 0;
+        let perPage = per_page == undefined ? 10 : Number(per_page);
+        if (sort_field) {
+            orders[sort_field] = sort_direction == "ascend" ? 1 : -1;
+        }
+        else {
+            orders = { 'createdAt': -1 };
+        }
+        if (filterTextValue) {
+            let filterTextField = [];
+            await allFiled.map(function async(filed) {
+                let filedData = {
+                    [filed]: {
+                        $regex: `${filterTextValue}`, $options: "i"
+                    }
+                };
+                filterTextField.push(filedData);
+            });
+            filterText = {
+                ...filterText,
+                $or: filterTextField
+            };
+        }
+        const sensorData = await sensor_model_1.default.aggregate([
+            {
+                $addFields: {
+                    "_id": { $toString: "$_id" }
+                }
+            },
+            { $project: project },
+            { $match: filterText },
+            { $sort: orders },
+            {
+                $facet: {
+                    total: [{ $count: 'createdAt' }],
+                    docs: [{ $addFields: { _id: '$_id' } }],
+                },
+            },
             { $unwind: '$total' },
-            // {
-            //     $project: {
-            //         docs: {
-            //             $slice: ['$docs', perPage * pageFind, {
-            //                 $ifNull: [perPage, '$total.createdAt']
-            //             }]
-            //         },
-            //         total: '$total.createdAt',
-            //         limit: { $literal: perPage },
-            //         page: { $literal: (pageFind + 1) },
-            //         pages: { $ceil: { $divide: ['$total.createdAt', perPage] } },
-            //     },
-            // },
+            {
+                $project: {
+                    docs: {
+                        $slice: ['$docs', perPage * pageFind, {
+                                $ifNull: [perPage, '$total.createdAt']
+                            }]
+                    },
+                    total: '$total.createdAt',
+                    limit: { $literal: perPage },
+                    page: { $literal: (pageFind + 1) },
+                    pages: { $ceil: { $divide: ['$total.createdAt', perPage] } },
+                },
+            },
         ]);
         const sendResponse = {
             message: process.env.APP_GET_MESSAGE,
@@ -247,6 +319,7 @@ exports.default = {
     store,
     getSensorData,
     get,
+    getWithPagination,
     destroy,
     deleteSensorDataPassedDays
 };

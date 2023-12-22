@@ -508,7 +508,9 @@ const sendNotification = (async (req, res) => {
         sensorData = JSON.parse(JSON.stringify(sensorData));
         if (sensorData[0]) {
             sensorData.map(key => {
-                token.push(key.devicetoken);
+                if (!(token.includes(key.devicetoken))) {
+                    token.push(key.devicetoken);
+                }
             });
         }
         else {
