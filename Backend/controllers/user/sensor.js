@@ -146,7 +146,7 @@ const get = (async (req, res) => {
                 }
             },
             { $project: project },
-            { $match: filterText },
+            { $match: { $and: [filterText, { address: { $ne: 'Address not found' } }] } },
             { $sort: orders },
             {
                 $facet: {
@@ -155,19 +155,19 @@ const get = (async (req, res) => {
                 },
             },
             { $unwind: '$total' },
-            {
-                $project: {
-                    docs: {
-                        $slice: ['$docs', perPage * pageFind, {
-                                $ifNull: [perPage, '$total.createdAt']
-                            }]
-                    },
-                    total: '$total.createdAt',
-                    limit: { $literal: perPage },
-                    page: { $literal: (pageFind + 1) },
-                    pages: { $ceil: { $divide: ['$total.createdAt', perPage] } },
-                },
-            },
+            // {
+            //     $project: {
+            //         docs: {
+            //             $slice: ['$docs', perPage * pageFind, {
+            //                 $ifNull: [perPage, '$total.createdAt']
+            //             }]
+            //         },
+            //         total: '$total.createdAt',
+            //         limit: { $literal: perPage },
+            //         page: { $literal: (pageFind + 1) },
+            //         pages: { $ceil: { $divide: ['$total.createdAt', perPage] } },
+            //     },
+            // },
         ]);
         const sendResponse = {
             message: process.env.APP_GET_MESSAGE,
