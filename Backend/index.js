@@ -91,7 +91,7 @@ cron.schedule("0 0 */3 * *", async () => {
 //     console.log("Database device token  delete ");
 //     console.log("Cron job every night at midnight is a commonly used cron schedule.  ");
 // });
-cron.schedule('0 0 * * SUN', async () => {
+cron.schedule('0 0 * * *', async () => {
     // await cronService.serviceAutoCancelAfter30Day();
     await sensor_1.default.deleteSensorDataPassedDays();
     console.log('cronjob');

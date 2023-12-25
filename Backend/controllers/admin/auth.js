@@ -233,7 +233,7 @@ const login = (async (req, res) => {
         }
         else {
             const sendResponse = {
-                message: process.env.APP_EMAIL_PASSWROD_INCORRECT_MESSAGE,
+                message: process.env.APP_ADMIN_NOT_FOUND_MESSAGE,
             };
             return responseMiddleware_1.default.sendError(res, sendResponse);
         }
