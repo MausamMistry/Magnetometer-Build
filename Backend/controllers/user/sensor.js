@@ -8,6 +8,7 @@ const responseMiddleware_1 = __importDefault(require("../../helper/responseMiddl
 const log4js_1 = __importDefault(require("log4js"));
 const logger = log4js_1.default.getLogger();
 const sensor_model_1 = __importDefault(require("../../models/sensor-model"));
+const commonFunction_1 = __importDefault(require("../../helper/commonFunction"));
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // ===========================================  sensor Create on sensot Request =====================================//
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -186,7 +187,7 @@ const getWithPagination = (async (req, res) => {
         let filter = req.query.search;
         filter = filter ? filter.replace(" 91", "") : "";
         filter = filter ? filter.replace("%", "") : "";
-        let filterTextValue = filter;
+        let filterTextValue = await commonFunction_1.default.checkSpecialChr(filter);
         let orders = {};
         let pageFind = page ? (Number(page) - 1) : 0;
         let perPage = per_page == undefined ? 10 : Number(per_page);
@@ -197,8 +198,8 @@ const getWithPagination = (async (req, res) => {
             orders = { 'createdAt': -1 };
         }
         if (filterTextValue) {
-            let filterTextField = [];
-            await allFiled.map(function async(filed) {
+            const filterTextField = [];
+            await allFiled.map((filed) => {
                 let filedData = {
                     [filed]: {
                         $regex: `${filterTextValue}`, $options: "i"

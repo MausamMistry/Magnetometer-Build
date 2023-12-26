@@ -191,9 +191,15 @@ const login = (async (req, res) => {
         const { email, password, firebase_token } = req.body;
         const adminData = await admin_model_1.default.findOne({
             email,
-            deleted_by: null
+            deleted_by: null,
         });
         if (adminData) {
+            if (adminData.is_active === "false") {
+                const sendResponse = {
+                    message: process.env.APP_BLOCKED,
+                };
+                return responseMiddleware_1.default.sendError(res, sendResponse);
+            }
             if (!adminData.password) {
                 const sendResponse = {
                     message: process.env.APP_INVALID_PASSWORD,

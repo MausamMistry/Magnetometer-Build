@@ -14,6 +14,7 @@ const firebase_1 = require("../../helper/firebase");
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const uniqid_1 = __importDefault(require("uniqid"));
 const sensor_model_1 = __importDefault(require("../../models/sensor-model"));
+const commonFunction_1 = __importDefault(require("../../helper/commonFunction"));
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // ============================================= Over Here Include Library =============================================
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -88,14 +89,12 @@ const get = (async (req, res) => {
     const session = await mongoose_1.default.startSession();
     session.startTransaction();
     try {
-        const { per_page, page, sort_field, sort_direction, type } = req.query;
-        let filterText = {
-            type: type,
-        };
+        const { per_page, page, sort_field, sort_direction } = req.query;
+        let filterText = {};
         let filter = req.query.search;
         filter = filter ? filter.replace(" 91", "") : "";
         filter = filter ? filter.replace("%", "") : "";
-        let filterTextValue = filter;
+        let filterTextValue = await commonFunction_1.default.checkSpecialChr(filter);
         let orders = {};
         let pageFind = page ? (Number(page) - 1) : 0;
         let perPage = per_page == undefined ? 10 : Number(per_page);
@@ -106,8 +105,8 @@ const get = (async (req, res) => {
             orders = { 'createdAt': -1 };
         }
         if (filterTextValue) {
-            let filterTextField = [];
-            await allFiled.map(function async(filed) {
+            const filterTextField = [];
+            await allFiled.map((filed) => {
                 let filedData = {
                     [filed]: {
                         $regex: `${filterTextValue}`, $options: "i"
@@ -119,6 +118,11 @@ const get = (async (req, res) => {
                 ...filterText,
                 $or: filterTextField
             };
+            if (mongoose_1.default.Types.ObjectId.isValid(filterTextValue)) {
+                filterText = {
+                    $or: [{ _id: new mongoose_1.default.Types.ObjectId(filterTextValue) }],
+                };
+            }
         }
         const userData = await admin_model_1.default.aggregate([
             {

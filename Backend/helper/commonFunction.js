@@ -589,6 +589,12 @@ const srSlugReportData = () => {
     ];
     return data;
 };
+const checkSpecialChr = async (filter) => {
+    const pattern = /^[^\*?]*$/;
+    const testFilter = pattern.test(filter);
+    let filterTextValue = testFilter ? filter : '';
+    return filterTextValue;
+};
 exports.default = {
     sendEmailTemplate,
     generateOtp,
@@ -600,5 +606,6 @@ exports.default = {
     stripePaymentIntentStatus,
     srGetData,
     srSlugGetData,
-    srSlugReportData
+    srSlugReportData,
+    checkSpecialChr
 };
