@@ -34,11 +34,12 @@ const sendEmailTemplate = (async (data) => {
             port: 587,
             secure: false,
             auth: {
-                user: process.env.SENDER,
-                pass: process.env.PASS_KEY //app password for gmail
+                user: 'sarmistha.ebiztrait@gmail.com',
+                pass: 'wwhqfasjbpghdajk' // process.env.PASS_KEY   //app password for gmail
             }
         });
         const pathUrl = process.env.APP_BASE_EMAIL_TEMP;
+        console.log('pathUrl', pathUrl);
         // logger.info(process.env.SENDGRID_API_KEY)
         logger.info(pathUrl);
         const handlebarOptions = {
@@ -60,7 +61,7 @@ const sendEmailTemplate = (async (data) => {
             attech = [...attech, data.attachments];
         }
         var mailOptions = {
-            from: process.env.SENDER,
+            from: 'sarmistha.ebiztrait@gmail.com',
             to: data.to,
             subject: data.subject,
             template: data.template,
@@ -70,6 +71,7 @@ const sendEmailTemplate = (async (data) => {
         // trigger the sending of the E-mail
         await transporter.sendMail(mailOptions, function (error, info) {
             if (error) {
+                console.log('error', error);
                 logger.info(error);
                 return true;
             }

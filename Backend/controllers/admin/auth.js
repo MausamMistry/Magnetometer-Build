@@ -234,7 +234,6 @@ const login = (async (req, res) => {
                     status: 200,
                     message: process.env.APP_LOGGED_MESSAGE,
                 };
-                console.log('sendResponse', sendResponse);
                 return responseMiddleware_1.default.sendSuccess(req, res, sendResponse);
             }
         }
@@ -440,7 +439,11 @@ const forgetPassword = async (req, res) => {
                 template: template,
                 sendEmailTemplatedata: sendEmailTemplatedata
             };
+            const sendResponse = {
+                message: process.env.APP_PASSWROD,
+            };
             await commonFunction_1.default.sendEmailTemplate(datta);
+            return responseMiddleware_1.default.sendSuccess(req, res, sendResponse);
         }
         catch (err) {
             logger.info(process.env.APP_ADMIN_NOT_MESSAGE);
