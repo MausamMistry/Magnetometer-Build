@@ -234,6 +234,7 @@ const login = (async (req, res) => {
                     status: 200,
                     message: process.env.APP_LOGGED_MESSAGE,
                 };
+                console.log('sendResponse', sendResponse);
                 return responseMiddleware_1.default.sendSuccess(req, res, sendResponse);
             }
         }

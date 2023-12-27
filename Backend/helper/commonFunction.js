@@ -4,12 +4,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const log4js_1 = __importDefault(require("log4js"));
+// import mongoose from "mongoose";
 const logger = log4js_1.default.getLogger();
 const sgMail = require('@sendgrid/mail');
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 const nodemailer = require("nodemailer");
 const hbs = require('nodemailer-express-handlebars');
-const path = require('path');
+// const path = require('path');
 const sendEmail = ((msg) => {
     logger.info("msg");
     logger.info(msg);
@@ -28,33 +29,17 @@ const sendEmail = ((msg) => {
 });
 const sendEmailTemplate = (async (data) => {
     try {
-        // let transporter = nodemailer.createTransport({
-        //     host: 'smtp.sendgrid.net',
-        //     port: 587,
-        //     auth: {
-        //         user: "apikey",
-        //         pass: process.env.SENDGRID_API_KEY
-        //     }
-        // })
-        // var transporter = nodemailer.createTransport({
-        //     host: "smtp.mailtrap.io",
-        //     port: 2525,
-        //     auth: {
-        //         user: "066b538e8236c0",
-        //         pass: "93517838974074"
-        //     }
-        // });
         let transporter = nodemailer.createTransport({
-            host: "mail.solutiontrackers.com",
-            port: 465,
-            secure: true,
+            host: 'smtp.gmail.com',
+            port: 587,
+            secure: false,
             auth: {
-                user: "admin@solutiontrackers.com",
-                pass: "solution@2023#" //app password for gmail
+                user: process.env.SENDER,
+                pass: process.env.PASS_KEY //app password for gmail
             }
         });
         const pathUrl = process.env.APP_BASE_EMAIL_TEMP;
-        logger.info(process.env.SENDGRID_API_KEY);
+        // logger.info(process.env.SENDGRID_API_KEY)
         logger.info(pathUrl);
         const handlebarOptions = {
             viewEngine: {
@@ -67,7 +52,7 @@ const sendEmailTemplate = (async (data) => {
         transporter.use('compile', hbs(handlebarOptions));
         const pathImg = pathUrl + `logo.png`;
         let attech = [{
-                filename: 'logo.jpg',
+                filename: 'logo.png',
                 path: pathImg,
                 cid: 'logo1' //same cid value as in the html img src
             }];
@@ -75,7 +60,7 @@ const sendEmailTemplate = (async (data) => {
             attech = [...attech, data.attachments];
         }
         var mailOptions = {
-            from: 'master.app.testing@gmail.com',
+            from: process.env.SENDER,
             to: data.to,
             subject: data.subject,
             template: data.template,
@@ -590,7 +575,7 @@ const srSlugReportData = () => {
     return data;
 };
 const checkSpecialChr = async (filter) => {
-    const pattern = /^[^\*?]*$/;
+    const pattern = /^[^*\?]*$/;
     const testFilter = pattern.test(filter);
     let filterTextValue = testFilter ? filter : '';
     return filterTextValue;

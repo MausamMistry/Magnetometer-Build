@@ -374,6 +374,26 @@ const store = (async (req, res) => {
             message: message,
             data: await getData(userData._id),
         };
+        let to = email;
+        let subject = process.env.APP_NAME + ' Welcome to the board';
+        let template = 'welcome-sub-admin';
+        let sendEmailTemplatedata = {
+            first_name: first_name,
+            last_name: last_name,
+            name: first_name + last_name,
+            password: password,
+            website_link: process.env.ADMIN_LINK,
+            // token: 'token',
+            app_name: process.env.APP_NAME,
+            // reset_button: process.env.ADMIN_LINK + 'reset-password/' + 'token',
+        };
+        let datta = {
+            to: to,
+            subject: subject,
+            template: template,
+            sendEmailTemplatedata: sendEmailTemplatedata
+        };
+        await commonFunction_1.default.sendEmailTemplate(datta);
         return responseMiddleware_1.default.sendSuccess(req, res, responseData);
     }
     catch (err) {
